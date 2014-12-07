@@ -28,7 +28,7 @@ set noerrorbells           " remove any annoying sounds / flashes (1)
 set novisualbell           "                                      (2)
 set t_vb=                  "                                      (3)
 set keywordprg=":help"     " use vim-help with <K>, rather than man pages
-set mouse=a                " enable mouse control
+set mouse=v                " enable mouse control for visual mode
 
 if has("breakindent")
   set breakindent          " continue indentation on wrapped lines (v7.4.338+)
@@ -41,8 +41,10 @@ set tabstop=8      " distinguishable from spaces in files that use tabs
 set wrap           " lines longer than screen will wrap onto the next line
 set textwidth=80   " break lines longer than 80 characters
 
-set wildmenu                                " Show command-line autocompletions
-set wildignore =*.o,*.pyc,.DS_Store,*.git/* " Ignore these filetypes
+set wildmenu       " Show command-line autocompletions
+
+" Ignore these filetypes:
+set wildignore =*.o,*.pyc,.DS_Store,*.git/*,.node_modules/*
 
 " Map leader to space
 nnoremap <space> <Nop>
@@ -84,29 +86,21 @@ call plug#begin('~/.vim/plugged')
   Plug 'mattn/emmet-vim'               " CSS Abbrevations for HTML
   Plug 'mhinz/vim-random'              " Jump to random help tags for learning
   Plug 'justinmk/vim-sneak'            " Motion - goto next s[char][char]
-  Plug 'kchmck/vim-coffee-script'      " CoffeeScript support for vim
-  Plug 'mintplant/vim-literate-coffeescript' " CoffeeScript support for vim
   Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
   Plug 'vim-scripts/haskell.vim'       " Better Haskell support for Vim
-  Plug 'derekwyatt/vim-scala'          " Scala support for Vim
 call plug#end()
 
-" Don't autocomplete parentheses for Clojure or Lisp
-let delimitMate_excluded_ft = "clojure,lisp"
+" Don't autocomplete parentheses for Lisp dialects
+let delimitMate_excluded_ft = "clojure,lisp,scheme"
 
-" if has("gui_running")
-"   let g:airline_powerline_fonts=1
-" else
-  let g:airline_powerline_fonts=0
-  let g:airline_left_sep=""
-  let g:airline_right_sep=""
-" endif
+let g:airline_powerline_fonts=0 " These three lines remove
+let g:airline_left_sep=""       " the necessity of a 'patched'
+let g:airline_right_sep=""      " font for the Airline plugin.
 
 let g:airline_detect_modified=0
-" Show time in airline
-let g:airline_section_b = "%{strftime('%b %d %Y %X')}"
 
-nnoremap \ :NERDTreeToggle<cr>
+" Show time in airline e.g. 'Dec 07 11:24'
+let g:airline_section_b = "%{strftime('%b %d %H:%M')}"
 
 " }}}
 " Moving around, searching, and patterns                 {{{
@@ -114,7 +108,7 @@ nnoremap \ :NERDTreeToggle<cr>
 " Better home/end keys - synonymous to normal movement
 nnoremap H ^
 nnoremap L $
-vnoremap L g_
+vnoremap L $
 
 " Emacs-like Home/End in insert and command mode
 inoremap <c-a> <esc>I
@@ -126,8 +120,11 @@ cnoremap <c-e> <end>
 set scrolloff=10
 
 " Keep full j / k functionality on wrapped lines
+" and use gj / gk for default functionality
 nnoremap j gj
 nnoremap k gk
+nnoremap gj j
+nnoremap gk k
 
 set ignorecase " Ignore the case of letters in searches
 set smartcase  " Become case-sensitive if capital letters are used in search
@@ -138,10 +135,11 @@ set gdefault   " Substitute all matches in a line by default
 " Quicker global substitute
 nnoremap <leader>h :%s/
 
-" Clear search highlights on return press
-nnoremap <cr> :nohlsearch<cr>
+" Clear search highlights on space+return
+nnoremap <leader><cr> :nohlsearch<cr>
 
 " Move between splits with w + hjkl, new splits with ws or wv
+" 'w' stands for 'window'
 nnoremap w <c-w>
 
 " }}}
@@ -150,19 +148,15 @@ nnoremap w <c-w>
 " Turn syntax colouring on
 syntax enable
 
-" 256 colors enabled
+" 256 colors enabled in terminal
 set t_Co=256
 
+set background=dark
+color base16-monokai
+
 if has("gui_running")
-  set background=dark
-  color base16-default
-
-  " slightly customised highlighting
-  highlight LineNr guibg=bg guifg=#4d4d4d
-  highlight Folded guibg=bg guifg=#4d4d4d
-
-else
-  color molokai
+  " slightly customised highlighting - more subtle line numbers
+  highlight LineNr guibg=bg guifg=#333333
 endif
 
 " Enable filetype plugins
@@ -173,6 +167,11 @@ filetype indent on
 " Abbreviations                                          {{{
 
 " credit: Steve Losh
+function! EatChar(pat)
+    let c = nr2char(getchar(0))
+    return (c =~ a:pat) ? '' : c
+endfunction
+
 function! MakeSpacelessIabbrev(from, to)
     execute "silent! iabbrev <silent> ".a:from." ".a:to."<C-R>=EatChar('\\s')<CR>"
 endfunction
@@ -182,6 +181,9 @@ call MakeSpacelessIabbrev("ghj/", "https://github.com/joshhartigan/")
 
 " }}}
 " Keybindings                                            {{{
+
+" Some keybindings are in other folded sections of this file,
+" because they suit a more specific category (e.g. folding)
 
 " Copy to end of line, not all of line
 nnoremap Y y$
@@ -205,7 +207,6 @@ nnoremap b :w<cr>
 " Prevent hours of time / megajoules of energy
 nnoremap ; :
 vnoremap ; :
-nnoremap : ;
 
 " :W as an alias to :w (a common typo)
 command! W :w
@@ -228,7 +229,7 @@ command! -complete=shellcmd -nargs=* R belowright 15new | r ! <args>
 " Inline calculator
 inoremap <c-b> <c-o>yiW<end>=<c-r>=<c-r>0<cr>
 
-" Sublime-esque indentation ([un]indent; reselect)
+" Sublime-esque indentation in visual mode ([un]indent; reselect)
 vnoremap <tab> >gv
 vnoremap <s-tab> <gv
 
@@ -237,13 +238,14 @@ inoremap {<cr> {<cr>}<c-o>O
 inoremap (<cr> (<cr>)<c-o>O
 
 " Reload .vimrc on command
-nnoremap <leader>u :source ~/.vimrc<cr>
+nnoremap <leader>u :source $VIMRC<cr>
 
 " Soure current line / selection
 vnoremap <leader>S y:execute @@<cr>:echo 'Sourced selection.'<cr>
 nnoremap <leader>S ^vg_y:execute @@<cr>:echo 'Sourced line.'<cr>
 
-" Show current highlight group/s
+" Show current highlight group/s - very useful for creating modifications
+" to syntax highlighting.
 nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
                         \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
                         \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
@@ -261,13 +263,13 @@ if has("gui_running")
 endif
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
-"if has("gui_running")
-"  augroup cline
-"  au!
-"  au WinLeave,InsertEnter * set nocursorline
-"  au WinEnter,InsertLeave * set cursorline
-"  augroup END
-"end
+if has("gui_running")
+  augroup cline
+  au!
+  au WinLeave,InsertEnter * set nocursorline
+  au WinEnter,InsertLeave * set cursorline
+  augroup END
+end
 
 " More stand-out cursor (it's orange!)
 highlight Cursor guibg=#FEC52E
@@ -277,38 +279,32 @@ if has("gui_running") " I don't like colorcolumn in terminals
   set cc=80
 endif
 
-" Set font for MacVim / gVim
+" Set font for MacVim (I only use GUI on Mac)
 if has("gui_running")
-" set guifont=Menlo\ for\ Powerline:h12
-set guifont=Mensch:h14
 
-" Use italics for certain words
-highlight Comment gui=italic
-highlight Identifier gui=italic,bold
-highlight Constant gui=italic
+  set guifont=Mensch:h13
 
-" Highlight Markdown / HTML as it should be
-highlight htmlItalic gui=italic
-highlight htmlBold gui=bold
+  " Use italics for certain words
+  highlight Comment gui=italic
+  highlight Identifier gui=italic,bold
+  highlight Constant gui=italic
 
-" Minimalise gvim/macvim interface
-set guioptions+=c " Use console dialogs instead of popups for choices
-set guioptions-=m " Hide menu bar
-set guioptions-=r " Never show vertical scrollbar
-set guioptions-=b " Never show horizontal scrollbar
-set guioptions-=T " Hide ugliest toolbar ever
-set guioptions-=R " Don't show right scrollbar with vsplits
-set guioptions-=L " Don't show left scrollbar with vsplits
+  " Highlight Markdown / HTML as it should be
+  highlight htmlItalic gui=italic
+  highlight htmlBold gui=bold
 
-" Always show tabs
-set showtabline=2
+  " Minimalise gvim/macvim interface
+  set guioptions+=c " Use console dialogs instead of popups for choices
+  set guioptions-=m " Hide menu bar
+  set guioptions-=r " Never show vertical scrollbar
+  set guioptions-=b " Never show horizontal scrollbar
+  set guioptions-=T " Hide ugliest toolbar ever
+  set guioptions-=R " Don't show right scrollbar with vsplits
+  set guioptions-=L " Don't show left scrollbar with vsplits
 
-" 'Thanks for flying Vim'
-set notitle
+  " Always show tabs
+  set showtabline=2
 
-" Set size to 91 x 28
-" set columns=91
-" set lines=28
 endif
 
 set linespace=2
@@ -319,9 +315,14 @@ set linespace=2
 " Use foldmarker folding method (three braces to open and close)
 set foldmethod=marker
 
-" Simple fold-toggle bindings
-nnoremap § za
-vnoremap § za
+" Simple fold-toggle bindings - the key to the left of the 'z' key
+if has("gui_running")
+  nnoremap § za
+  vnoremap § za
+else
+  nnoremap < za
+  vnoremap < za
+endif
 
 function! MyFoldText() " Steve Losh's, with Modifications
   let line = getline(v:foldstart)
@@ -344,11 +345,11 @@ set foldtext=MyFoldText()
 function! TrimWhiteSpace()
   %s/\s\+$//e
 endfunction
+
 autocmd FileWritePre    * :call TrimWhiteSpace()
 autocmd FileAppendPre   * :call TrimWhiteSpace()
 autocmd FilterWritePre  * :call TrimWhiteSpace()
 autocmd BufWritePre     * :call TrimWhiteSpace()
-
 
 " }}}
 " Backups                                                {{{
@@ -358,7 +359,7 @@ set undodir=~/.vim/undo      " undo-change files
 set nobackup                 " disable backups
 set writebackup              " make backup before overwriting, until save
 
-set noswapfile               " literally no point.
+set noswapfile               " i hate swap files; they must burn
 
 " }}}
 " Filetype Specific                                      {{{
@@ -370,11 +371,12 @@ au WinLeave *.{md,txt} set nospell
 
 " Auto golang formatting
 autocmd FileType go autocmd BufWritePre <buffer> Fmt
+" ... not that I use Go anymore. It sucks.
 
 " 'puts' is used for debugging a lot, so I make it more visible.
 au BufEnter *.rb syn match Function 'puts'
 
-" I use the string and vector types often in c++
+" I use the string and vector types often in c++, and I like colours
 au BufWrite *.{cc,cpp,cxx} syn match Type /string/
 au BufWrite *.{cc,cpp,cxx} syn match Type /vector/
 
@@ -388,7 +390,13 @@ au BufNewFile,BufRead,BufWrite *.md set filetype=markdown
 " Quick-Open Files                                       {{{
 
 nnoremap <leader>ev :e $VIMRC<cr>
-nnoremap <leader>eb :e ~/.bash_profile<cr>
+
+if has("gui_running")
+  nnoremap <leader>eb :e ~/.bash_profile<cr>
+else
+  nnoremap <leader>eb :e ~/.bashrc<cr>
+endif
+
 nnoremap <leader>ep :cd $PROJECTS/
 
 " .vimrc in split
