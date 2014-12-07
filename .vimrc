@@ -1,7 +1,7 @@
 " .vimrc
 " Author: Josh Hartigan
 " Source: https://github.com/joshhartigan/dotfiles/blob/master/.vimrc
-" Updated: September 21 2014
+" Updated: December 7 2014
 
 " Basic options                                          {{{
 
