@@ -1,7 +1,7 @@
 " .vimrc
 " Author: Josh Hartigan
 " Source: https://github.com/joshhartigan/dotfiles/blob/master/.vimrc
-" Updated: December 7 2014
+" Updated: December 14 2014
 
 " Basic options                                          {{{
 
@@ -74,20 +74,19 @@ augroup END
 " Vim-Plug / Plugins                                     {{{
 
 call plug#begin('~/.vim/plugged')
-" Plug 'delimitMate.vim'               " Auto-close delimiters
   Plug 'VimClojure'                    " Support for Clojure
   Plug 'ervandew/supertab'             " Word autocompletion with <tab>
   Plug 'bling/vim-airline'             " Lightweight but fancy statusline
   Plug 'hail2u/vim-css3-syntax'        " Better CSS syntax highlighting
   Plug 'jelera/vim-javascript-syntax'  " Better JavaScript syntax highlighting
-  Plug 'chriskempson/base16-vim'       " A set of nice color schemes
   Plug 'tpope/vim-surround'            " Surround text objects with characters
   Plug 'camelcasemotion'               " Text objects for CamelCase words
-  Plug 'mattn/emmet-vim'               " CSS Abbrevations for HTML
   Plug 'mhinz/vim-random'              " Jump to random help tags for learning
   Plug 'justinmk/vim-sneak'            " Motion - goto next s[char][char]
   Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
   Plug 'vim-scripts/haskell.vim'       " Better Haskell support for Vim
+  Plug 'osyo-manga/vim-brightest'      " Highlight cursor word
+  Plug 'scrooloose/nerdtree'           " File tree in vim
 call plug#end()
 
 " Don't autocomplete parentheses for Lisp dialects
@@ -152,10 +151,10 @@ syntax enable
 set t_Co=256
 
 set background=dark
-color base16-monokai
+color smyck
 
 if has("gui_running")
-  " slightly customised highlighting - more subtle line numbers
+  " Slightly customised highlighting - more subtle line numbers
   highlight LineNr guibg=bg guifg=#333333
 endif
 
@@ -258,9 +257,6 @@ nnoremap ) %
 
 " Better looking splits
 set fillchars+=vert:│
-if has("gui_running")
-  highlight vertsplit guibg=bg guifg=#999999 ctermbg=bg ctermfg=white
-endif
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
 if has("gui_running")
@@ -282,7 +278,7 @@ endif
 " Set font for MacVim (I only use GUI on Mac)
 if has("gui_running")
 
-  set guifont=Mensch:h13
+  set guifont=Inconsolata:h14
 
   " Use italics for certain words
   highlight Comment gui=italic
@@ -301,9 +297,7 @@ if has("gui_running")
   set guioptions-=T " Hide ugliest toolbar ever
   set guioptions-=R " Don't show right scrollbar with vsplits
   set guioptions-=L " Don't show left scrollbar with vsplits
-
-  " Always show tabs
-  set showtabline=2
+  set guioptions-=e " Use non-gui tabs
 
 endif
 
