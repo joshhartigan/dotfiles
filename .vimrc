@@ -1,34 +1,30 @@
-" .vimrc
-" Author: Josh Hartigan
-" Source: https://github.com/joshhartigan/dotfiles/blob/master/.vimrc
-" Updated: December 14 2014
-
-" Basic options                                          {{{
+" basic options                                          {{{
 
 let $VIMRC = "~/.vimrc"
 
-set encoding=utf-8
+set encoding=utf-8         " what are you, stupid?
 set autoindent             " copy indent from current line onto next
 set smartindent            " better indentaion with C-like (i.e. { }) languages
 set hidden                 " hide buffer when it is abandoned
 set ttyfast                " imporove redrawing smoothness
 set backspace=indent,eol,start " allow backspacing over indent, eol, sol
 set nonumber               " don't show line numbers
-set laststatus=2           " always show status line (good for airline)
+set laststatus=2           " always show status line
 set history=1000           " remember 1000 ':' commands
-set list                   " show special characters, see below
-set listchars=tab:▸\ ,extends:❯,precedes:❮ " these are the special characters
 set showbreak=↪            " show this character on folded lines
-set matchtime=3            " highlight parentheses for 30 1/10s of a second
+set matchtime=3            " highlight parentheses for 30 1/10s of a secon
 set splitright             " vertically split windows onto the right side
 set title                  " set window name to 'titlestring' or default
+set titlestring="~ vim ~"  " ... this is the title string
 set linebreak              " wrap lines only at 'breakat' characters
 set ruler                  " show positional ruler in status line
 set noerrorbells           " remove any annoying sounds / flashes (1)
 set novisualbell           "                                      (2)
 set t_vb=                  "                                      (3)
 set keywordprg=":help"     " use vim-help with <K>, rather than man pages
-set mouse=v                " enable mouse control for visual mode
+set list                   " show special characters, see below
+set listchars=tab:▸\ ,extends:❯,precedes:❮
+set mouse=a                " enable mouse control for all modes
 
 if has("breakindent")
   set breakindent          " continue indentation on wrapped lines (v7.4.338+)
@@ -71,10 +67,10 @@ augroup line_return
 augroup END
 
 " }}}
-" Vim-Plug / Plugins                                     {{{
+
+" vim-plug / plugins                                     {{{
 
 call plug#begin('~/.vim/plugged')
-  Plug 'VimClojure'                    " Support for Clojure
   Plug 'ervandew/supertab'             " Word autocompletion with <tab>
   Plug 'bling/vim-airline'             " Lightweight but fancy statusline
   Plug 'hail2u/vim-css3-syntax'        " Better CSS syntax highlighting
@@ -84,30 +80,41 @@ call plug#begin('~/.vim/plugged')
   Plug 'mhinz/vim-random'              " Jump to random help tags for learning
   Plug 'justinmk/vim-sneak'            " Motion - goto next s[char][char]
   Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
-  Plug 'vim-scripts/haskell.vim'       " Better Haskell support for Vim
-  Plug 'osyo-manga/vim-brightest'      " Highlight cursor word
-  Plug 'scrooloose/nerdtree'           " File tree in vim
+  Plug 'ap/vim-css-color'              " Show CSS colors in their color
+  Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
+  Plug 'wting/rust.vim'                " Rust support for Vim
 call plug#end()
 
 " Don't autocomplete parentheses for Lisp dialects
 let delimitMate_excluded_ft = "clojure,lisp,scheme"
-
-let g:airline_powerline_fonts=0 " These three lines remove
-let g:airline_left_sep=""       " the necessity of a 'patched'
-let g:airline_right_sep=""      " font for the Airline plugin.
 
 let g:airline_detect_modified=0
 
 " Show time in airline e.g. 'Dec 07 11:24'
 let g:airline_section_b = "%{strftime('%b %d %H:%M')}"
 
+" Grayscale Airline
+" let g:airline_theme='silver'
+
+" I don't care for 'patched' fonts
+let g:airline_powerline_fonts = 1
+let g:airline_left_sep=''
+let g:airline_right_sep=''
+
 " }}}
-" Moving around, searching, and patterns                 {{{
+
+" moving around, searching, and patterns                 {{{
 
 " Better home/end keys - synonymous to normal movement
 nnoremap H ^
 nnoremap L $
 vnoremap L $
+
+" Move up and down a bit faster
+nnoremap N 9j
+vnoremap N 9j
+nnoremap M 9k
+vnoremap M 9k
 
 " Emacs-like Home/End in insert and command mode
 inoremap <c-a> <esc>I
@@ -115,8 +122,8 @@ inoremap <c-e> <esc>A
 cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 
-" Keep current at least 30 lines away from edge of screen
-set scrolloff=10
+" Keep the current line in the center
+set scrolloff=999
 
 " Keep full j / k functionality on wrapped lines
 " and use gj / gk for default functionality
@@ -142,7 +149,8 @@ nnoremap <leader><cr> :nohlsearch<cr>
 nnoremap w <c-w>
 
 " }}}
-" Syntax, highlighting and spelling                      {{{
+
+" syntax, highlighting and spelling                      {{{
 
 " Turn syntax colouring on
 syntax enable
@@ -150,8 +158,9 @@ syntax enable
 " 256 colors enabled in terminal
 set t_Co=256
 
-set background=dark
-color smyck
+if filereadable( expand("~/.vim/colors/jellybeans.vim") )
+  color jellybeans
+endif
 
 if has("gui_running")
   " Slightly customised highlighting - more subtle line numbers
@@ -163,7 +172,8 @@ filetype plugin on
 filetype indent on
 
 " }}}
-" Abbreviations                                          {{{
+
+" abbreviations                                          {{{
 
 " credit: Steve Losh
 function! EatChar(pat)
@@ -179,10 +189,14 @@ call MakeSpacelessIabbrev("gh/", "https://github.com/")
 call MakeSpacelessIabbrev("ghj/", "https://github.com/joshhartigan/")
 
 " }}}
-" Keybindings                                            {{{
+
+" keybindings                                            {{{
 
 " Some keybindings are in other folded sections of this file,
 " because they suit a more specific category (e.g. folding)
+
+nnoremap gcc :SimpleComment<cr>
+nnoremap guc :SimpleUncomment<cr>
 
 " Copy to end of line, not all of line
 nnoremap Y y$
@@ -202,6 +216,9 @@ nnoremap <leader>Q :q!<cr>
 
 " Save file quickly
 nnoremap b :w<cr>
+
+" Use , rather than ; for repeating f/t/F/T motions
+nnoremap , ;
 
 " Prevent hours of time / megajoules of energy
 nnoremap ; :
@@ -253,32 +270,32 @@ nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> t
 nnoremap ) %
 
 " }}}
-" Interface                                              {{{
+
+" interface                                              {{{
 
 " Better looking splits
-set fillchars+=vert:│
+set fillchars+=vert:\
+highlight VertSplit ctermfg=0 ctermbg=0
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
-if has("gui_running")
-  augroup cline
-  au!
-  au WinLeave,InsertEnter * set nocursorline
-  au WinEnter,InsertLeave * set cursorline
-  augroup END
-end
+augroup cline
+au!
+au WinLeave,InsertEnter * set nocursorline
+au WinEnter,InsertLeave * set cursorline
+augroup END
 
 " More stand-out cursor (it's orange!)
 highlight Cursor guibg=#FEC52E
 
 " Ruler at column 80
-if has("gui_running") " I don't like colorcolumn in terminals
-  set cc=80
-endif
+set cc=80
 
 " Set font for MacVim (I only use GUI on Mac)
+" Note: I rarely use GUI at all anymore - it's much more productive
+"       to stay in the Terminal, where everything else is.
 if has("gui_running")
 
-  set guifont=Inconsolata:h14
+  set guifont=Monaco:h12
 
   " Use italics for certain words
   highlight Comment gui=italic
@@ -301,22 +318,18 @@ if has("gui_running")
 
 endif
 
-set linespace=2
+set linespace=2 " Put 2 pixels in between each line of text
 
 " }}}
-" Text and file formatting and folds                     {{{
+
+" text and file formatting and folds                     {{{
 
 " Use foldmarker folding method (three braces to open and close)
 set foldmethod=marker
 
 " Simple fold-toggle bindings - the key to the left of the 'z' key
-if has("gui_running")
-  nnoremap § za
-  vnoremap § za
-else
-  nnoremap < za
-  vnoremap < za
-endif
+nnoremap ` za
+vnoremap ` za
 
 function! MyFoldText() " Steve Losh's, with Modifications
   let line = getline(v:foldstart)
@@ -346,17 +359,19 @@ autocmd FilterWritePre  * :call TrimWhiteSpace()
 autocmd BufWritePre     * :call TrimWhiteSpace()
 
 " }}}
-" Backups                                                {{{
 
-set undodir=~/.vim/undo      " undo-change files
+" backups                                                {{{
 
-set nobackup                 " disable backups
-set writebackup              " make backup before overwriting, until save
+set undodir=~/.vim/undo      " Undo-change files
 
-set noswapfile               " i hate swap files; they must burn
+set nobackup                 " Disable backups
+set writebackup              " Make backup before overwriting, until save
+
+set noswapfile               " I hate swap files; they must burn
 
 " }}}
-" Filetype Specific                                      {{{
+
+" filetype specific                                      {{{
 
 " Usually .txt or .md is for documentation / info, in which
 " case I will want spellchecking on.
@@ -369,6 +384,7 @@ autocmd FileType go autocmd BufWritePre <buffer> Fmt
 
 " 'puts' is used for debugging a lot, so I make it more visible.
 au BufEnter *.rb syn match Function 'puts'
+au BufEnter *.rb syn match Function 'print'
 
 " I use the string and vector types often in c++, and I like colours
 au BufWrite *.{cc,cpp,cxx} syn match Type /string/
@@ -381,25 +397,25 @@ nnoremap <leader>ml F[i<a href=""><esc>f[xf]xi</a><esc>ldi(2F"pf(xx
 au BufNewFile,BufRead,BufWrite *.md set filetype=markdown
 
 " }}}
-" Quick-Open Files                                       {{{
 
+" quick-open files                                       {{{
+
+" Open ~/.vimrc in same buffer
 nnoremap <leader>ev :e $VIMRC<cr>
 
-if has("gui_running")
-  nnoremap <leader>eb :e ~/.bash_profile<cr>
-else
-  nnoremap <leader>eb :e ~/.bashrc<cr>
-endif
+" Open ~/.bashrc in same buffer
+nnoremap <leader>eb :e ~/.bashrc<cr>
 
 nnoremap <leader>ep :cd $PROJECTS/
 
-" .vimrc in split
+" Open .vimrc in split
 nnoremap <leader>v :sp $VIMRC<cr>
 
 " }}}
-" Show Indentation Depth                                 {{{
 
-nn <silent> <leader>B :cal BlockColor(8, 0x101010)<cr>
+" show indentation depth                                 {{{
+
+nn <silent> <leader>B :call BlockColor(8, 0x101010)<cr>
 
 func! BlockColor(max, step, ...)
   let [max, bufnr] = [a:max, bufnr('%')]
@@ -452,3 +468,4 @@ func! s:padzero(nr)
 endfunc
 
 " }}}
+
