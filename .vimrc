@@ -72,9 +72,8 @@ augroup END
 
 call plug#begin('~/.vim/plugged')
   Plug 'ervandew/supertab'             " Word autocompletion with <tab>
-  Plug 'bling/vim-airline'             " Lightweight but fancy statusline
+  Plug 'molok/vim-smartusline'         " Super simple status line
   Plug 'hail2u/vim-css3-syntax'        " Better CSS syntax highlighting
-  Plug 'jelera/vim-javascript-syntax'  " Better JavaScript syntax highlighting
   Plug 'tpope/vim-surround'            " Surround text objects with characters
   Plug 'camelcasemotion'               " Text objects for CamelCase words
   Plug 'mhinz/vim-random'              " Jump to random help tags for learning
@@ -83,23 +82,11 @@ call plug#begin('~/.vim/plugged')
   Plug 'ap/vim-css-color'              " Show CSS colors in their color
   Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
   Plug 'wting/rust.vim'                " Rust support for Vim
+  Plug 'kana/vim-niceblock'            " Blockwise visual mode, but better
+  Plug 'itchyny/vim-highlighturl'      " URL highlight everywhere
+  Plug 'pangloss/vim-javascript'       " Better JavaScript syntax highlighting
+  Plug 'mhinz/vim-startify'            " A fancy start screen for Vim
 call plug#end()
-
-" Don't autocomplete parentheses for Lisp dialects
-let delimitMate_excluded_ft = "clojure,lisp,scheme"
-
-let g:airline_detect_modified=0
-
-" Show time in airline e.g. 'Dec 07 11:24'
-let g:airline_section_b = "%{strftime('%b %d %H:%M')}"
-
-" Grayscale Airline
-" let g:airline_theme='silver'
-
-" I don't care for 'patched' fonts
-let g:airline_powerline_fonts = 1
-let g:airline_left_sep=''
-let g:airline_right_sep=''
 
 " }}}
 
@@ -123,7 +110,7 @@ cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 
 " Keep the current line in the center
-set scrolloff=999
+set scrolloff=1000
 
 " Keep full j / k functionality on wrapped lines
 " and use gj / gk for default functionality
@@ -158,8 +145,9 @@ syntax enable
 " 256 colors enabled in terminal
 set t_Co=256
 
-if filereadable( expand("~/.vim/colors/jellybeans.vim") )
-  color jellybeans
+if filereadable( expand("~/.vim/colors/garden.vim") )
+  set background=dark
+  color garden
 endif
 
 if has("gui_running")
@@ -269,26 +257,32 @@ nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> t
 " % is too far away
 nnoremap ) %
 
+" alt-h to hide search-match highlighting
+nnoremap ˙ :noh<cr>
+
 " }}}
 
 " interface                                              {{{
+
+" Set the status line to a sensible default for smartusline
+set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
 
 " Better looking splits
 set fillchars+=vert:\
 highlight VertSplit ctermfg=0 ctermbg=0
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
-augroup cline
-au!
-au WinLeave,InsertEnter * set nocursorline
-au WinEnter,InsertLeave * set cursorline
-augroup END
+"augroup cline
+"au!
+"au WinLeave,InsertEnter * set nocursorline
+"au WinEnter,InsertLeave * set cursorline
+"augroup END
 
 " More stand-out cursor (it's orange!)
 highlight Cursor guibg=#FEC52E
 
 " Ruler at column 80
-set cc=80
+" set cc=80
 
 " Set font for MacVim (I only use GUI on Mac)
 " Note: I rarely use GUI at all anymore - it's much more productive
@@ -331,22 +325,20 @@ set foldmethod=marker
 nnoremap ` za
 vnoremap ` za
 
-function! MyFoldText() " Steve Losh's, with Modifications
-  let line = getline(v:foldstart)
+function! FoldLines()
+  let line     = getline(v:foldstart)
+  let line_len = len(line)
 
-  let nucolwidth = &fdc + &number * &numberwidth
-  let windowwidth = winwidth(0) - nucolwidth - 3
+  let width = &tw ? &tw : 80
+
   let foldedlinecount = v:foldend - v:foldstart
 
-  " expand tabs into spaces
-  let onetab = strpart('          ', 0, &tabstop)
-  let line = substitute(line, '\t', onetab, 'g')
+  let fill = repeat(' ', width - line_len - 15)
 
-  let line = strpart(line, 0, windowwidth - len(foldedlinecount))
-  let fillcharcount = windowwidth - len(line) - len(foldedlinecount) - 1
-  return line . ' ↴ ' . repeat(" ",fillcharcount) . foldedlinecount . ' '
+  return line . fill . foldedlinecount . ' lines' . repeat(' ', 1000)
 endfunction
-set foldtext=MyFoldText()
+
+set foldtext=FoldLines()
 
 " Remove trailing whitespace on save
 function! TrimWhiteSpace()
