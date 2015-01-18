@@ -1,10 +1,9 @@
-INFORMATION ON MY LINUX SYSTEM
-------------------------------
+these files are for customising things.
 
-$ lsblk
-sda      8:0    0 298.1G  0 disk 
-├─sda1   8:1    0     2M  0 part 
-├─sda2   8:2    0     1G  0 part /boot
-├─sda3   8:3    0   256M  0 part [SWAP]
-├─sda4   8:4    0   7.3G  0 part /
-└─sda5   8:5    0 289.5G  0 part /home
+I like Vim. I am also beginning to learn Emacs.
+I use OS X on a Macbook Pro 2014 13 inch.
+I have also used Linux (Crunchbang and Arch mainly), and though I find the
+customisation fun, it is sometimes too time consuming.
+
+I change color schemes in everything all the time.
+
