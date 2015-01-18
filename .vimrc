@@ -1,4 +1,27 @@
-" basic options                                          {{{
+" -*- use neovim -*-
+
+if !has('nvim') && has('mac')
+  echo "please use neovim"
+  exit
+endif
+
+" =============== CONTENTS (press * on md5) ========== "
+" basic options       - 790119dc20c9c88fafb8c1387a215939
+" moving around etc.  - 0a272fef246e9a1ccbcd41430d1c8fa5
+" syntax etc.         - e1150751eabad1616657096d1fc161e8
+" abbreviations       - 6ba63c409ec6ad4418d5a0fe73986bc5
+" keybindings         - 1ec442eb14483faf21f007d4672977f5
+" interface           - 78ceb1219085f26b5b14667ad54e68fb
+" text and files etc. - c1b2b7a346e9bfea3307cbd4a6e8bf5d
+" backups             - d65afaadb40c8ecfab29b38d74ed9190
+" filetype specific   - 90aca44b20c4fec7cc326e3e6d5c8265
+" quick-open files    - c2b048731a310a5e20498aa324634ca0
+" show indentation    - 96c8da811be6d78282a03ac481a96176
+" ==================================================== "
+
+" ------------------------------------------------
+" basic options @ 790119dc20c9c88fafb8c1387a215939
+" ------------------------------------------------
 
 let $VIMRC = "~/.vimrc"
 
@@ -8,13 +31,13 @@ set smartindent            " better indentaion with C-like (i.e. { }) languages
 set hidden                 " hide buffer when it is abandoned
 set ttyfast                " imporove redrawing smoothness
 set backspace=indent,eol,start " allow backspacing over indent, eol, sol
-set nonumber               " don't show line numbers
+set number                 " show line numbers
 set laststatus=2           " always show status line
 set history=1000           " remember 1000 ':' commands
 set showbreak=↪            " show this character on folded lines
-set matchtime=3            " highlight parentheses for 30 1/10s of a secon
+set matchtime=3            " highlight parentheses for 30 1/10s of a second
 set splitright             " vertically split windows onto the right side
-set title                  " set window name to 'titlestring' or default
+set notitle                " don't set window name to 'titlestring' or default
 set titlestring="~ vim ~"  " ... this is the title string
 set linebreak              " wrap lines only at 'breakat' characters
 set ruler                  " show positional ruler in status line
@@ -25,10 +48,7 @@ set keywordprg=":help"     " use vim-help with <K>, rather than man pages
 set list                   " show special characters, see below
 set listchars=tab:▸\ ,extends:❯,precedes:❮
 set mouse=a                " enable mouse control for all modes
-
-if has("breakindent")
-  set breakindent          " continue indentation on wrapped lines (v7.4.338+)
-endif
+set breakindent            " continue indentation on wrapped lines (v7.4.338+)
 
 set expandtab      " use spaces for indentation
 set smarttab       " insert 'shiftwidth' spaces and remove 'shiftwidth' spaces
@@ -66,14 +86,12 @@ augroup line_return
         \ endif
 augroup END
 
-" }}}
-
-" vim-plug / plugins                                     {{{
+" -----------------------------------------------------
+" vim-plug / plugins @ ee114926568bfaed70b982a47c8be743
+" -----------------------------------------------------
 
 call plug#begin('~/.vim/plugged')
   Plug 'ervandew/supertab'             " Word autocompletion with <tab>
-  Plug 'molok/vim-smartusline'         " Super simple status line
-  Plug 'hail2u/vim-css3-syntax'        " Better CSS syntax highlighting
   Plug 'tpope/vim-surround'            " Surround text objects with characters
   Plug 'camelcasemotion'               " Text objects for CamelCase words
   Plug 'mhinz/vim-random'              " Jump to random help tags for learning
@@ -81,16 +99,16 @@ call plug#begin('~/.vim/plugged')
   Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
   Plug 'ap/vim-css-color'              " Show CSS colors in their color
   Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
-  Plug 'wting/rust.vim'                " Rust support for Vim
   Plug 'kana/vim-niceblock'            " Blockwise visual mode, but better
   Plug 'itchyny/vim-highlighturl'      " URL highlight everywhere
-  Plug 'pangloss/vim-javascript'       " Better JavaScript syntax highlighting
   Plug 'mhinz/vim-startify'            " A fancy start screen for Vim
+  Plug 'sheerun/vim-polyglot'          " Support for lots of languages
+  Plug 'sheerun/vim-wombat-scheme'     " A color scheme
 call plug#end()
 
-" }}}
-
-" moving around, searching, and patterns                 {{{
+" -------------------------------------------------------------------------
+" moving around, searching, and patterns @ 0a272fef246e9a1ccbcd41430d1c8fa5
+" -------------------------------------------------------------------------
 
 " Better home/end keys - synonymous to normal movement
 nnoremap H ^
@@ -135,9 +153,13 @@ nnoremap <leader><cr> :nohlsearch<cr>
 " 'w' stands for 'window'
 nnoremap w <c-w>
 
-" }}}
+" Don't highlight results from * and #
+nnoremap * *:noh<cr>
+nnoremap # #:noh<cr>
 
-" syntax, highlighting and spelling                      {{{
+" --------------------------------------------------------------------
+" syntax, highlighting and spelling @ e1150751eabad1616657096d1fc161e8
+" --------------------------------------------------------------------
 
 " Turn syntax colouring on
 syntax enable
@@ -145,9 +167,9 @@ syntax enable
 " 256 colors enabled in terminal
 set t_Co=256
 
-if filereadable( expand("~/.vim/colors/garden.vim") )
-  set background=dark
-  color garden
+if filereadable( expand("~/.vim/colors/jellybeans.vim") )
+  set background=light
+  color solarized
 endif
 
 if has("gui_running")
@@ -159,9 +181,10 @@ endif
 filetype plugin on
 filetype indent on
 
-" }}}
 
-" abbreviations                                          {{{
+" ------------------------------------------------
+" abbreviations @ 6ba63c409ec6ad4418d5a0fe73986bc5
+" ------------------------------------------------
 
 " credit: Steve Losh
 function! EatChar(pat)
@@ -176,9 +199,10 @@ endfunction
 call MakeSpacelessIabbrev("gh/", "https://github.com/")
 call MakeSpacelessIabbrev("ghj/", "https://github.com/joshhartigan/")
 
-" }}}
 
-" keybindings                                            {{{
+" ----------------------------------------------
+" keybindings @ 1ec442eb14483faf21f007d4672977f5
+" ----------------------------------------------
 
 " Some keybindings are in other folded sections of this file,
 " because they suit a more specific category (e.g. folding)
@@ -240,6 +264,7 @@ vnoremap <s-tab> <gv
 " Insert line between braces / parentheses
 inoremap {<cr> {<cr>}<c-o>O
 inoremap (<cr> (<cr>)<c-o>O
+inoremap ({<cr> ({<cr>})<c-o>O
 
 " Reload .vimrc on command
 nnoremap <leader>u :source $VIMRC<cr>
@@ -260,23 +285,25 @@ nnoremap ) %
 " alt-h to hide search-match highlighting
 nnoremap ˙ :noh<cr>
 
-" }}}
-
-" interface                                              {{{
-
-" Set the status line to a sensible default for smartusline
-set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+" --------------------------------------------
+" interface @ 78ceb1219085f26b5b14667ad54e68fb
+" --------------------------------------------
 
 " Better looking splits
 set fillchars+=vert:\
-highlight VertSplit ctermfg=0 ctermbg=0
+
+if &background == 'light'
+  highlight VertSplit ctermfg=15 ctermbg=15
+elseif
+  highlight VertSplit ctermfg=0 ctermbg=0
+endif
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
-"augroup cline
-"au!
-"au WinLeave,InsertEnter * set nocursorline
-"au WinEnter,InsertLeave * set cursorline
-"augroup END
+" augroup cline
+"   au!
+"   au WinLeave,InsertEnter * set nocursorline
+"   au WinEnter,InsertLeave * set cursorline
+" augroup END
 
 " More stand-out cursor (it's orange!)
 highlight Cursor guibg=#FEC52E
@@ -314,9 +341,9 @@ endif
 
 set linespace=2 " Put 2 pixels in between each line of text
 
-" }}}
-
-" text and file formatting and folds                     {{{
+" ---------------------------------------------------------------------
+" text and file formatting and folds @ c1b2b7a346e9bfea3307cbd4a6e8bf5d
+" ---------------------------------------------------------------------
 
 " Use foldmarker folding method (three braces to open and close)
 set foldmethod=marker
@@ -350,9 +377,9 @@ autocmd FileAppendPre   * :call TrimWhiteSpace()
 autocmd FilterWritePre  * :call TrimWhiteSpace()
 autocmd BufWritePre     * :call TrimWhiteSpace()
 
-" }}}
-
-" backups                                                {{{
+" ------------------------------------------
+" backups @ d65afaadb40c8ecfab29b38d74ed9190
+" ------------------------------------------
 
 set undodir=~/.vim/undo      " Undo-change files
 
@@ -361,9 +388,9 @@ set writebackup              " Make backup before overwriting, until save
 
 set noswapfile               " I hate swap files; they must burn
 
-" }}}
-
-" filetype specific                                      {{{
+" ----------------------------------------------------
+" filetype specific @ 90aca44b20c4fec7cc326e3e6d5c8265
+" ----------------------------------------------------
 
 " Usually .txt or .md is for documentation / info, in which
 " case I will want spellchecking on.
@@ -388,9 +415,9 @@ nnoremap <leader>ml F[i<a href=""><esc>f[xf]xi</a><esc>ldi(2F"pf(xx
 " I don't use modula2, but I do use markdown.
 au BufNewFile,BufRead,BufWrite *.md set filetype=markdown
 
-" }}}
-
-" quick-open files                                       {{{
+" ---------------------------------------------------
+" quick-open files @ c2b048731a310a5e20498aa324634ca0
+" ---------------------------------------------------
 
 " Open ~/.vimrc in same buffer
 nnoremap <leader>ev :e $VIMRC<cr>
@@ -403,9 +430,9 @@ nnoremap <leader>ep :cd $PROJECTS/
 " Open .vimrc in split
 nnoremap <leader>v :sp $VIMRC<cr>
 
-" }}}
-
-" show indentation depth                                 {{{
+" ---------------------------------------------------------
+" show indentation depth @ 96c8da811be6d78282a03ac481a96176
+" ---------------------------------------------------------
 
 nn <silent> <leader>B :call BlockColor(8, 0x101010)<cr>
 
@@ -458,6 +485,4 @@ func! s:padzero(nr)
   endfor
   retu nr
 endfunc
-
-" }}}
 
