@@ -1,12 +1,13 @@
 " -*- use neovim -*-
 
-if !has('nvim') && has('mac')
+if !has('nvim') && !has('macvim') && has('mac')
   echo "please use neovim"
   exit
 endif
 
 " =============== CONTENTS (press * on md5) ========== "
 " basic options       - 790119dc20c9c88fafb8c1387a215939
+" plugins             - ee114926568bfaed70b982a47c8be743
 " moving around etc.  - 0a272fef246e9a1ccbcd41430d1c8fa5
 " syntax etc.         - e1150751eabad1616657096d1fc161e8
 " abbreviations       - 6ba63c409ec6ad4418d5a0fe73986bc5
@@ -31,7 +32,7 @@ set smartindent            " better indentaion with C-like (i.e. { }) languages
 set hidden                 " hide buffer when it is abandoned
 set ttyfast                " imporove redrawing smoothness
 set backspace=indent,eol,start " allow backspacing over indent, eol, sol
-set number                 " show line numbers
+set nonumber               " don't show line numbers
 set laststatus=2           " always show status line
 set history=1000           " remember 1000 ':' commands
 set showbreak=↪            " show this character on folded lines
@@ -101,9 +102,10 @@ call plug#begin('~/.vim/plugged')
   Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
   Plug 'kana/vim-niceblock'            " Blockwise visual mode, but better
   Plug 'itchyny/vim-highlighturl'      " URL highlight everywhere
-  Plug 'mhinz/vim-startify'            " A fancy start screen for Vim
   Plug 'sheerun/vim-polyglot'          " Support for lots of languages
-  Plug 'sheerun/vim-wombat-scheme'     " A color scheme
+  Plug 'joshhartigan/midnight.vim'     " A color scheme
+  Plug 'Valloric/YouCompleteMe'        " Autocompletion
+  Plug 'loremipsum'                    " Insertion of dummy text
 call plug#end()
 
 " -------------------------------------------------------------------------
@@ -167,10 +169,8 @@ syntax enable
 " 256 colors enabled in terminal
 set t_Co=256
 
-if filereadable( expand("~/.vim/colors/jellybeans.vim") )
-  set background=light
-  color solarized
-endif
+set background=dark
+color molokai
 
 if has("gui_running")
   " Slightly customised highlighting - more subtle line numbers
@@ -285,6 +285,9 @@ nnoremap ) %
 " alt-h to hide search-match highlighting
 nnoremap ˙ :noh<cr>
 
+" sublime text nostalgia
+nnoremap <leader>P :
+
 " --------------------------------------------
 " interface @ 78ceb1219085f26b5b14667ad54e68fb
 " --------------------------------------------
@@ -294,7 +297,8 @@ set fillchars+=vert:\
 
 if &background == 'light'
   highlight VertSplit ctermfg=15 ctermbg=15
-elseif
+endif
+if &background == 'dark'
   highlight VertSplit ctermfg=0 ctermbg=0
 endif
 
@@ -434,7 +438,7 @@ nnoremap <leader>v :sp $VIMRC<cr>
 " show indentation depth @ 96c8da811be6d78282a03ac481a96176
 " ---------------------------------------------------------
 
-nn <silent> <leader>B :call BlockColor(8, 0x101010)<cr>
+nnoremap <leader>B :call BlockColor(8, 0x101010)<cr>
 
 func! BlockColor(max, step, ...)
   let [max, bufnr] = [a:max, bufnr('%')]
