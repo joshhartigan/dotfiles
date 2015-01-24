@@ -59,6 +59,30 @@ alias gpog='git push origin gh-pages'
 # `$ get joshhartigan/dotfiles`                     #
 get() { git clone https://github.com/$1; }
 
+# This is a function for visiting the plain-text    #
+# versions of files in Git repos, on the version of #
+# the repo that is hosted on GitHub. Sadly it can   #
+# only be run in the root of a git repo at the      #
+# moment.                                           #
+raw() {
+  if [ ! -d .git ]; then
+    echo "you're not in the root of a git repository!"
+    return
+  fi
+  
+  remote_url=`git config --get remote.origin.url | \
+              sed 's/https:\/\/github\.com//'`
+  branch_name=`git branch | grep '*' | sed 's/\* //'`
+  
+  if hash xdg-open 2>/dev/null; then
+    xdg-open https://raw.githubusercontent.com$remote_url/$branch_name/$1
+  elif hash open 2>/dev/null; then
+    open https://raw.githubusercontent.com$remote_url/$branch_name/$1
+  else
+    echo https://raw.githubusercontent.com$remote_url/$branch_name/$1
+  fi
+}
+
 # This will paste things onto ptpb.pw               #
 pb() {
   echo $1 | curl -F c=@- https://ptpb.pw
