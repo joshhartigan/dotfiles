@@ -1,33 +1,45 @@
 export TERM=xterm # This is required for emacs (ansi-term)
-
+                                                     #
 # I put /usr/local/bin and $USER/bin before          #
 # the rest of my $PATH, so that custom replacements  #
 # of default programs will override the things       #
 # they're replacing.                                 #
 export PATH=/usr/local/bin:/usr/local/sbin:~/bin:$PATH
-
+                                                     #
 # My bash prompt looks like this:                    #
 # "josh/directory$ "                                 #
 # It is colourful.                                   #
 export PS1="\[\e[00;34m\]\u\[\e[0m\]\[\e[00;37m\]/\[\e[0m\]\[\e[00;36m\]\W\[\e[0m\]\[\e[00;34m\]\\$\[\e[0m\]\[\e[00;37m\] \[\e[0m\]"
-
+                                                     #
 export EDITOR="vim"
-export VIMRC="$HOME/.vimrc"
-export BASHRC="$HOME/.bashrc"
-
+export VIMRC="$HOME/.vimrc"                          #
+export BASHRC="$HOME/.bashrc"                        #
+                                                     #
 # The projects folder is where I keep miscellaneous  #
 # programming things, like Git repos.                #
 export PROJECTS="~/Projects"
 
 # Who cares about 'editor wars'.                     #
 # I use both for different things and they're good.  #
-alias vim='nvim'    # Vim is dead; Long live NeoVim. #
+alias vim='nvim'    # Vim is dead; Long live NeoVim.
 alias em='open /usr/local/Cellar/emacs/24.4/Emacs.app/ &'
 
-shopt -s nocaseglob # Case insensitive filename expansion #
-shopt -s cdspell    # Autocorrect filename typos in `cd`  #
-alias ls='ls -G'    # Use ls with color by default        #
-alias npi='sudo npm install -g' # Faster npm installation #
+shopt -s nocaseglob # Case insensitive filename expansion
+shopt -s cdspell    # Autocorrect filename typos in `cd`
+
+alias npi='sudo npm install -g' # Faster npm installation
+
+alias ls='ls -G' # Use ls with color by default
+alias grep='egrep --colour=always' # Show grep matches. Use better regexes.
+alias cp='cp -iv' # Interactive and verbose `cp`
+alias mv='mv -iv' # Interactive and verbose `mv`
+alias mkdir='mkdir -p' # Create intermediate directories
+
+alias ll='ls -FGlAhp' # Super verbose `ls`
+alias up='cd ..'
+
+export GREP_COLOR="00;31"
+export LSCOLORS=DxFxExBxCxegedabagacad
 
 project() { cd $PROJECTS/$1; }
 
@@ -59,21 +71,16 @@ alias gpog='git push origin gh-pages'
 # `$ get joshhartigan/dotfiles`                     #
 get() { git clone https://github.com/$1; }
 
-# This is a function for visiting the plain-text    #
-# versions of files in Git repos, on the version of #
-# the repo that is hosted on GitHub. Sadly it can   #
-# only be run in the root of a git repo at the      #
-# moment.                                           #
 raw() {
   if [ ! -d .git ]; then
     echo "you're not in the root of a git repository!"
     return
   fi
-  
+
   remote_url=`git config --get remote.origin.url | \
               sed 's/https:\/\/github\.com//'`
   branch_name=`git branch | grep '*' | sed 's/\* //'`
-  
+
   if hash xdg-open 2>/dev/null; then
     xdg-open https://raw.githubusercontent.com$remote_url/$branch_name/$1
   elif hash open 2>/dev/null; then
