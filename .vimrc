@@ -32,7 +32,7 @@ set smartindent            " better indentaion with C-like (i.e. { }) languages
 set hidden                 " hide buffer when it is abandoned
 set ttyfast                " imporove redrawing smoothness
 set backspace=indent,eol,start " allow backspacing over indent, eol, sol
-set nonumber               " don't show line numbers
+set number                 " don't show line numbers
 set laststatus=2           " always show status line
 set history=1000           " remember 1000 ':' commands
 set showbreak=↪            " show this character on folded lines
@@ -91,21 +91,29 @@ augroup END
 " vim-plug / plugins @ ee114926568bfaed70b982a47c8be743
 " -----------------------------------------------------
 
+" Required by vim-plug
 call plug#begin('~/.vim/plugged')
-  Plug 'ervandew/supertab'             " Word autocompletion with <tab>
-  Plug 'tpope/vim-surround'            " Surround text objects with characters
-  Plug 'camelcasemotion'               " Text objects for CamelCase words
-  Plug 'mhinz/vim-random'              " Jump to random help tags for learning
-  Plug 'justinmk/vim-sneak'            " Motion - goto next s[char][char]
-  Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
-  Plug 'ap/vim-css-color'              " Show CSS colors in their color
-  Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
-  Plug 'kana/vim-niceblock'            " Blockwise visual mode, but better
-  Plug 'itchyny/vim-highlighturl'      " URL highlight everywhere
-  Plug 'sheerun/vim-polyglot'          " Support for lots of languages
-  Plug 'joshhartigan/midnight.vim'     " A color scheme
-  Plug 'Valloric/YouCompleteMe'        " Autocompletion
-  Plug 'loremipsum'                    " Insertion of dummy text
+
+" Interface
+Plug 'ap/vim-css-color'              " Show CSS colors in their color
+Plug 'itchyny/vim-highlighturl'      " URL highlight everywhere
+Plug 'joshhartigan/midnight.vim'     " A color scheme
+
+" Text functionality
+Plug 'tpope/vim-surround'            " Surround text objects with characters
+Plug 'camelcasemotion'               " Text objects for CamelCase words
+Plug 'justinmk/vim-sneak'            " Motion - goto next s[char][char]
+Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
+Plug 'kana/vim-niceblock'            " Blockwise visual mode, but better
+Plug 'Valloric/YouCompleteMe'        " Autocompletion
+
+" Other functionality
+Plug 'mhinz/vim-random'              " Jump to random help tags for learning
+Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
+Plug 'sheerun/vim-polyglot'          " Support for lots of languages
+Plug 'loremipsum'                    " Insertion of dummy text
+
+" All plugins must be inserted before this line
 call plug#end()
 
 " -------------------------------------------------------------------------
@@ -129,8 +137,8 @@ inoremap <c-e> <esc>A
 cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 
-" Keep the current line in the center
-set scrolloff=1000
+" Keep the current line 5 lines from the ends of the screen
+set scrolloff=5
 
 " Keep full j / k functionality on wrapped lines
 " and use gj / gk for default functionality
@@ -170,7 +178,7 @@ syntax enable
 set t_Co=256
 
 set background=dark
-color molokai
+color garden
 
 if has("gui_running")
   " Slightly customised highlighting - more subtle line numbers
@@ -280,7 +288,7 @@ nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> t
                         \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
 " % is too far away
-nnoremap ) %
+nnoremap ( %
 
 " alt-h to hide search-match highlighting
 nnoremap ˙ :noh<cr>
@@ -292,15 +300,13 @@ nnoremap <leader>P :
 " interface @ 78ceb1219085f26b5b14667ad54e68fb
 " --------------------------------------------
 
-" Better looking splits
-set fillchars+=vert:\
-
-if &background == 'light'
-  highlight VertSplit ctermfg=15 ctermbg=15
-endif
-if &background == 'dark'
-  highlight VertSplit ctermfg=0 ctermbg=0
-endif
+" if &background == 'light'
+"   highlight VertSplit ctermfg=15 ctermbg=15
+" endif
+" if &background == 'dark'
+"   highlight VertSplit ctermfg=0 ctermbg=0
+" endif
+highlight VertSplit ctermfg=bg ctermbg=bg
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
 " augroup cline
@@ -489,4 +495,3 @@ func! s:padzero(nr)
   endfor
   retu nr
 endfunc
-
