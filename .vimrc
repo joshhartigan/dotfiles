@@ -2,7 +2,7 @@
 
 if !has('nvim') && !has('macvim') && has('mac')
   echo "please use neovim"
-  exit
+"  exit
 endif
 
 " =============== CONTENTS (press * on md5) ========== "
@@ -17,7 +17,6 @@ endif
 " backups             - d65afaadb40c8ecfab29b38d74ed9190
 " filetype specific   - 90aca44b20c4fec7cc326e3e6d5c8265
 " quick-open files    - c2b048731a310a5e20498aa324634ca0
-" show indentation    - 96c8da811be6d78282a03ac481a96176
 " ==================================================== "
 
 " ------------------------------------------------
@@ -32,8 +31,8 @@ set smartindent            " better indentaion with C-like (i.e. { }) languages
 set hidden                 " hide buffer when it is abandoned
 set ttyfast                " imporove redrawing smoothness
 set backspace=indent,eol,start " allow backspacing over indent, eol, sol
-set number                 " don't show line numbers
-set laststatus=2           " always show status line
+set nonumber               " don't show line numbers
+set laststatus=1           " only show status line with multiple windows
 set history=1000           " remember 1000 ':' commands
 set showbreak=↪            " show this character on folded lines
 set matchtime=3            " highlight parentheses for 30 1/10s of a second
@@ -50,6 +49,7 @@ set list                   " show special characters, see below
 set listchars=tab:▸\ ,extends:❯,precedes:❮
 set mouse=a                " enable mouse control for all modes
 set breakindent            " continue indentation on wrapped lines (v7.4.338+)
+set showcmd                " show info on in-progress commmands (:help showcmd)
 
 set expandtab      " use spaces for indentation
 set smarttab       " insert 'shiftwidth' spaces and remove 'shiftwidth' spaces
@@ -105,7 +105,7 @@ Plug 'camelcasemotion'               " Text objects for CamelCase words
 Plug 'justinmk/vim-sneak'            " Motion - goto next s[char][char]
 Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
 Plug 'kana/vim-niceblock'            " Blockwise visual mode, but better
-Plug 'Valloric/YouCompleteMe'        " Autocompletion
+Plug 'ervandew/supertab'             " <Tab> for completion
 
 " Other functionality
 Plug 'mhinz/vim-random'              " Jump to random help tags for learning
@@ -178,7 +178,7 @@ syntax enable
 set t_Co=256
 
 set background=dark
-color garden
+color molokai
 
 if has("gui_running")
   " Slightly customised highlighting - more subtle line numbers
@@ -231,7 +231,7 @@ nmap <leader><tab> :tabnew<cr>
 nmap <s-tab> :tabclose<cr>
 
 " Remove Ex mode; :q! with leader-Q
-noremap Q <Nop>
+noremap Q :q<cr>
 nnoremap <leader>Q :q!<cr>
 
 " Save file quickly
@@ -293,20 +293,22 @@ nnoremap ( %
 " alt-h to hide search-match highlighting
 nnoremap ˙ :noh<cr>
 
-" sublime text nostalgia
+" Sublime text nostalgia
 nnoremap <leader>P :
+
+" Faster access for pasting text
+nnoremap <leader>p :set paste!<cr>
 
 " --------------------------------------------
 " interface @ 78ceb1219085f26b5b14667ad54e68fb
 " --------------------------------------------
 
-" if &background == 'light'
-"   highlight VertSplit ctermfg=15 ctermbg=15
-" endif
-" if &background == 'dark'
-"   highlight VertSplit ctermfg=0 ctermbg=0
-" endif
-highlight VertSplit ctermfg=bg ctermbg=bg
+if &background == 'light'
+  highlight VertSplit ctermfg=15 ctermbg=15
+endif
+if &background == 'dark'
+  highlight VertSplit ctermfg=0 ctermbg=0
+endif
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
 " augroup cline
@@ -439,59 +441,3 @@ nnoremap <leader>ep :cd $PROJECTS/
 
 " Open .vimrc in split
 nnoremap <leader>v :sp $VIMRC<cr>
-
-" ---------------------------------------------------------
-" show indentation depth @ 96c8da811be6d78282a03ac481a96176
-" ---------------------------------------------------------
-
-nnoremap <leader>B :call BlockColor(8, 0x101010)<cr>
-
-func! BlockColor(max, step, ...)
-  let [max, bufnr] = [a:max, bufnr('%')]
-  " Colors
-  if !exists('g:colors_name') | let g:colors_name = 'default' | endif
-  if !exists('g:bc_highl') || ( exists('g:bc_highl') && g:bc_highl != g:colors_name )
-    if !exists('a:1')
-      redi => gnorm
-      sil! hi Normal
-      redi END
-      let bgc = matchstr(gnorm, 'guibg=#\zs[^# ]\+')
-      let bgc = empty(bgc) ? &bg == 'dark' ? '0x000000' : '0xffffff' : '0x'.bgc
-    else
-      let bgc = a:1
-    endif
-    for id in range(1, max)
-      let step = &bg == 'dark' ? bgc + (a:step * id) : bgc - (a:step * id)
-      exe 'hi BlockColor'.id.' guifg=bg guibg=#'.s:gethex(step)
-    endfor
-    let g:bc_highl = g:colors_name
-  endif
-  " Toggling
-  if exists('b:blockcolor') && b:blockcolor
-    let b:blockcolor = 0
-    for id in range(1, max)
-      sil! cal matchdelete(bufnr.id)
-    endfor
-  else
-    let b:blockcolor = 1
-    for id in range(1, max)
-      cal matchadd('BlockColor'.id, '^\s\{'.id.'}', id, bufnr.id)
-    endfor
-  endif
-endfunc
-
-func! s:gethex(step)
-  let newco = printf('%x', a:step)
-  let newco = strlen(newco) < 6 ? s:padzero(newco) : newco
-  let newco = '0x'.newco >= 0xffffff ? 'ffffff' : newco
-  let newco = '0x'.newco <= 0 ? '000000' : newco
-  retu newco
-endfunc
-
-func! s:padzero(nr)
-  let [nr, len] = [a:nr, 6 - strlen(a:nr)]
-  for each in range(1, len)
-    let nr = '0'.nr
-  endfor
-  retu nr
-endfunc
