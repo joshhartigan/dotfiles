@@ -1,27 +1,29 @@
 export TERM=xterm # This is required for emacs (ansi-term)
-                                                     #
+
 # I put /usr/local/bin and $USER/bin before          #
 # the rest of my $PATH, so that custom replacements  #
 # of default programs will override the things       #
 # they're replacing.                                 #
-export PATH=/usr/local/bin:/usr/local/sbin:~/bin:$PATH
+export PATH=~/bin:/usr/local/bin:/usr/local/sbin:$PATH
                                                      #
-# My bash prompt looks like this:                    #
-# "josh/directory$ "                                 #
-# It is colourful.                                   #
-export PS1="\[\e[00;34m\]\u\[\e[0m\]\[\e[00;37m\]/\[\e[0m\]\[\e[00;36m\]\W\[\e[0m\]\[\e[00;34m\]\\$\[\e[0m\]\[\e[00;37m\] \[\e[0m\]"
-                                                     #
+# My bash prompt is colourful.                       #
+# There is a bit of indentation at the beginning to  #
+# distinguish it from command output.                #
+export PS1="    \[\e[01;34m\]λ \W \[\e[0m\]"
+
 export EDITOR="vim"
-export VIMRC="$HOME/.vimrc"                          #
-export BASHRC="$HOME/.bashrc"                        #
-                                                     #
+export VIMRC="$HOME/.vimrc"
+export BASHRC="$HOME/.bashrc"
+
 # The projects folder is where I keep miscellaneous  #
 # programming things, like Git repos.                #
-export PROJECTS="~/Projects"
+export PROJECTS="/Users/josh/Projects"
 
 # Who cares about 'editor wars'.                     #
 # I use both for different things and they're good.  #
-alias vim='nvim'    # Vim is dead; Long live NeoVim.
+if hash nvim 2>/dev/null; then
+  alias vim='nvim'    # Vim is dead; Long live NeoVim.
+fi
 alias em='open /usr/local/Cellar/emacs/24.4/Emacs.app/ &'
 
 shopt -s nocaseglob # Case insensitive filename expansion
@@ -29,11 +31,14 @@ shopt -s cdspell    # Autocorrect filename typos in `cd`
 
 alias npi='sudo npm install -g' # Faster npm installation
 
+alias py='python'
+
 alias ls='ls -G' # Use ls with color by default
-alias grep='egrep --colour=always' # Show grep matches. Use better regexes.
+alias grep='egrep -i --colour=always' # Better regex, colour, insensitive.
 alias cp='cp -iv' # Interactive and verbose `cp`
 alias mv='mv -iv' # Interactive and verbose `mv`
 alias mkdir='mkdir -p' # Create intermediate directories
+alias rm='rm -i' # Interactive (i.e. safer) `rm`
 
 alias ll='ls -FGlAhp' # Super verbose `ls`
 alias up='cd ..'
@@ -46,7 +51,9 @@ project() { cd $PROJECTS/$1; }
 # `cl()` is another way of navigating folders.      #
 # It enters the directory, then lists all of the    #
 # files inside the directory.                       #
-cl() { cd $1 && ls; }
+# `cll()` is a more verbose form of `cl()`.         #
+cl()  { cd $1 && ls; }
+cll() { cd $1 && ll; }
 
 # I don't often use Clojure, but this is how I do.  #
 # I don't use Leiningen because it is buggy to      #
@@ -79,7 +86,7 @@ raw() {
 
   remote_url=`git config --get remote.origin.url | \
               sed 's/https:\/\/github\.com//'`
-  branch_name=`git branch | grep '*' | sed 's/\* //'`
+  branch_name=`git branch | grep '\*' | sed 's/\* //'`
 
   if hash xdg-open 2>/dev/null; then
     xdg-open https://raw.githubusercontent.com$remote_url/$branch_name/$1
