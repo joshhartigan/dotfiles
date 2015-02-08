@@ -5,19 +5,20 @@ if !has('nvim') && !has('macvim') && has('mac')
 "  exit
 endif
 
-" =============== CONTENTS (press * on md5) ========== "
-" basic options       - 790119dc20c9c88fafb8c1387a215939
-" plugins             - ee114926568bfaed70b982a47c8be743
-" moving around etc.  - 0a272fef246e9a1ccbcd41430d1c8fa5
-" syntax etc.         - e1150751eabad1616657096d1fc161e8
-" abbreviations       - 6ba63c409ec6ad4418d5a0fe73986bc5
-" keybindings         - 1ec442eb14483faf21f007d4672977f5
-" interface           - 78ceb1219085f26b5b14667ad54e68fb
-" text and files etc. - c1b2b7a346e9bfea3307cbd4a6e8bf5d
-" backups             - d65afaadb40c8ecfab29b38d74ed9190
-" filetype specific   - 90aca44b20c4fec7cc326e3e6d5c8265
-" quick-open files    - c2b048731a310a5e20498aa324634ca0
-" ==================================================== "
+" =============== CONTENTS (press * on md5) ============ "
+" basic options       - 790119dc20c9c88fafb8c1387a215939 "
+" plugins             - ee114926568bfaed70b982a47c8be743 "
+" moving around etc.  - 0a272fef246e9a1ccbcd41430d1c8fa5 "
+" syntax etc.         - e1150751eabad1616657096d1fc161e8 "
+" abbreviations       - 6ba63c409ec6ad4418d5a0fe73986bc5 "
+" keybindings         - 1ec442eb14483faf21f007d4672977f5 "
+" interface           - 78ceb1219085f26b5b14667ad54e68fb "
+" text and files etc. - c1b2b7a346e9bfea3307cbd4a6e8bf5d "
+" backups             - d65afaadb40c8ecfab29b38d74ed9190 "
+" filetype specific   - 90aca44b20c4fec7cc326e3e6d5c8265 "
+" quick-open files    - c2b048731a310a5e20498aa324634ca0 "
+" misc. functions     - 0f2ead6ec51179fdaa84033b6bc41fc5 "
+" ====================================================== "
 
 " ------------------------------------------------
 " basic options @ 790119dc20c9c88fafb8c1387a215939
@@ -87,6 +88,7 @@ augroup line_return
         \ endif
 augroup END
 
+
 " -----------------------------------------------------
 " vim-plug / plugins @ ee114926568bfaed70b982a47c8be743
 " -----------------------------------------------------
@@ -98,6 +100,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'ap/vim-css-color'              " Show CSS colors in their color
 Plug 'itchyny/vim-highlighturl'      " URL highlight everywhere
 Plug 'joshhartigan/midnight.vim'     " A color scheme
+Plug 'junegunn/goyo.vim'             " Writeroom style in Vim
 
 " Text functionality
 Plug 'tpope/vim-surround'            " Surround text objects with characters
@@ -112,9 +115,11 @@ Plug 'mhinz/vim-random'              " Jump to random help tags for learning
 Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
 Plug 'sheerun/vim-polyglot'          " Support for lots of languages
 Plug 'loremipsum'                    " Insertion of dummy text
+Plug 'ryanss/vim-hackernews'         " Browse HN within Vim
 
 " All plugins must be inserted before this line
 call plug#end()
+
 
 " -------------------------------------------------------------------------
 " moving around, searching, and patterns @ 0a272fef246e9a1ccbcd41430d1c8fa5
@@ -167,6 +172,7 @@ nnoremap w <c-w>
 nnoremap * *:noh<cr>
 nnoremap # #:noh<cr>
 
+
 " --------------------------------------------------------------------
 " syntax, highlighting and spelling @ e1150751eabad1616657096d1fc161e8
 " --------------------------------------------------------------------
@@ -178,7 +184,7 @@ syntax enable
 set t_Co=256
 
 set background=dark
-color molokai
+color jellybeans
 
 if has("gui_running")
   " Slightly customised highlighting - more subtle line numbers
@@ -206,6 +212,9 @@ endfunction
 
 call MakeSpacelessIabbrev("gh/", "https://github.com/")
 call MakeSpacelessIabbrev("ghj/", "https://github.com/joshhartigan/")
+
+" insert shebang for filetype
+inoreabbrev <expr> #!! "#!/usr/bin/env" . (empty(&filetype) ? '' : ' '.&filetype)
 
 
 " ----------------------------------------------
@@ -297,7 +306,13 @@ nnoremap ˙ :noh<cr>
 nnoremap <leader>P :
 
 " Faster access for pasting text
-nnoremap <leader>p :set paste!<cr>
+nnoremap <leader>p :set paste!<cr>:set paste?<cr>
+
+" The same as block-mode I/A, but for normal mode (based on indentation)
+" From github/junegunn/dotfiles/.vimrc
+nmap <silent> <leader>I ^vio<C-V>I
+nmap <silent> <leader>A ^vio<C-V>$A
+
 
 " --------------------------------------------
 " interface @ 78ceb1219085f26b5b14667ad54e68fb
@@ -353,6 +368,7 @@ endif
 
 set linespace=2 " Put 2 pixels in between each line of text
 
+
 " ---------------------------------------------------------------------
 " text and file formatting and folds @ c1b2b7a346e9bfea3307cbd4a6e8bf5d
 " ---------------------------------------------------------------------
@@ -389,6 +405,7 @@ autocmd FileAppendPre   * :call TrimWhiteSpace()
 autocmd FilterWritePre  * :call TrimWhiteSpace()
 autocmd BufWritePre     * :call TrimWhiteSpace()
 
+
 " ------------------------------------------
 " backups @ d65afaadb40c8ecfab29b38d74ed9190
 " ------------------------------------------
@@ -399,6 +416,7 @@ set nobackup                 " Disable backups
 set writebackup              " Make backup before overwriting, until save
 
 set noswapfile               " I hate swap files; they must burn
+
 
 " ----------------------------------------------------
 " filetype specific @ 90aca44b20c4fec7cc326e3e6d5c8265
@@ -427,6 +445,7 @@ nnoremap <leader>ml F[i<a href=""><esc>f[xf]xi</a><esc>ldi(2F"pf(xx
 " I don't use modula2, but I do use markdown.
 au BufNewFile,BufRead,BufWrite *.md set filetype=markdown
 
+
 " ---------------------------------------------------
 " quick-open files @ c2b048731a310a5e20498aa324634ca0
 " ---------------------------------------------------
@@ -441,3 +460,27 @@ nnoremap <leader>ep :cd $PROJECTS/
 
 " Open .vimrc in split
 nnoremap <leader>v :sp $VIMRC<cr>
+
+
+" ---------------------------------------------------
+" quick-open files @ 0f2ead6ec51179fdaa84033b6bc41fc5
+" ---------------------------------------------------
+
+" Color scheme rotator
+function! s:color_schemes()
+  if !exists('s:all_colors')
+    let s:all_colors =
+    \ sort(map(filter(
+    \   split(globpath(&rtp, "colors/*.vim"), "\n"), 'v:val !~ "^/usr/"'),
+    \   "substitute(fnamemodify(v:val, ':t'), '\\.\\{-}$', '', '')"))
+  if !exists('s:color_index')
+    let s:color_index = index(s:all_colors, g:colors_name)
+  endif
+  let s:color_index = s(:color_index + 1) % len(s:all_colors)
+  let name = s:all_colors[s:color_index]
+  execute 'color' name
+  redraw
+  echo name
+endfunction
+
+nnoremap <F6> :call <SID>color_schemes()<cr>
