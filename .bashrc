@@ -1,5 +1,11 @@
 export TERM=xterm # This is required for emacs (ansi-term)
 
+# Certain things should only be run if I am on OS X, #
+# So I have created a file especially for them.      #
+if [ "$(uname)" == "Darwin" ]; then
+  . $HOME/.osx
+fi
+
 # I put /usr/local/bin and $USER/bin before          #
 # the rest of my $PATH, so that custom replacements  #
 # of default programs will override the things       #
@@ -9,7 +15,7 @@ export PATH=~/bin:/usr/local/bin:/usr/local/sbin:$PATH
 # My bash prompt is colourful.                       #
 # There is a bit of indentation at the beginning to  #
 # distinguish it from command output.                #
-export PS1="    \[\e[01;34m\]λ \W \[\e[0m\]"
+export PS1="    (\[\e[01;34m\]λ \W\[\e[0m\]) "
 
 export EDITOR="vim"
 export VIMRC="$HOME/.vimrc"
@@ -24,7 +30,6 @@ export PROJECTS="/Users/josh/Projects"
 if hash nvim 2>/dev/null; then
   alias vim='nvim'    # Vim is dead; Long live NeoVim.
 fi
-alias em='open /usr/local/Cellar/emacs/24.4/Emacs.app/ &'
 
 shopt -s nocaseglob # Case insensitive filename expansion
 shopt -s cdspell    # Autocorrect filename typos in `cd`
@@ -33,7 +38,7 @@ alias npi='sudo npm install -g' # Faster npm installation
 
 alias py='python'
 
-alias ls='ls -G' # Use ls with color by default
+alias ls='ls -tG' # Use ls with color by default (and order by date)
 alias grep='egrep -i --colour=always' # Better regex, colour, insensitive.
 alias cp='cp -iv' # Interactive and verbose `cp`
 alias mv='mv -iv' # Interactive and verbose `mv`
@@ -55,10 +60,6 @@ project() { cd $PROJECTS/$1; }
 cl()  { cd $1 && ls; }
 cll() { cd $1 && ll; }
 
-# I don't often use Clojure, but this is how I do.  #
-# I don't use Leiningen because it is buggy to      #
-# install on OS X and I don't want to fix it.       #
-alias clj='java -cp /usr/local/jars/clojure.jar clojure.main'
 
 # Make it look like you're doing 'hacking' from a   #
 # Hollywood film.                                   #
@@ -102,8 +103,3 @@ pb() {
   echo $1 | curl -F c=@- https://ptpb.pw
 }
 
-# Better bash completion for certain programs,      #
-# provided by brew package manager.                 #
-if [ -f $(brew --prefix)/etc/bash_completion ]; then
-  . $(brew --prefix)/etc/bash_completion
-fi
