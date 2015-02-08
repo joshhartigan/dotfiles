@@ -35,19 +35,6 @@ it to a large extent as I like to customise things. There are more important thi
 than which program somebody uses to edit data.
 
 
-#### ON OPERATING SYSTEMS ####
-
-I feel sorry for anyone forced into using the confining, bloated, ugly and buggy mess that is Windows.
-Each iteration of that operating system seems to roll itself further and further down a slippery slope
-towards hell.
-I don't think there is a good operating system. OS X is proprietary and Apple often make insane decisions;
-it does look nice though. GNU/Linux cannot really be judged as one system because of all of the distributions.
-  * Arch Linux is the best distro, though it takes too long to learn how to set it up.
-  * CrunchBang is good but comes with things I don't want, and is discontinued.
-  * Ubuntu is the Windows of the Linux world. Some derivatives such as Lubuntu and Mint are fine and exceptional for beginners.
-The Plan 9 operating system would be good had it any support for anything, and any sort of actual ecosystem.
-
-
 #### ON COMPUTERS ####
 
 They're all stupid.
