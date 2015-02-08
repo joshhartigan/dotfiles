@@ -44,8 +44,7 @@ I don't think there is a good operating system. OS X is proprietary and Apple of
 it does look nice though. GNU/Linux cannot really be judged as one system because of all of the distributions.
   * Arch Linux is the best distro, though it takes too long to learn how to set it up.
   * CrunchBang is good but comes with things I don't want, and is discontinued.
-  * Ubuntu is the Windows of the Linux world. Some derivatives such as Lubuntu and Mint are fine and exceptional
-    for beginners.
+  * Ubuntu is the Windows of the Linux world. Some derivatives such as Lubuntu and Mint are fine and exceptional for beginners.
 The Plan 9 operating system would be good had it any support for anything, and any sort of actual ecosystem.
 
 
