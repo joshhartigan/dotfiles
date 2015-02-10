@@ -3,7 +3,7 @@
 these files are for customising things.
 this readme contains comments on certain things.
 
-#### MISCELLANEOUS INFORMATION
+#### miscellaneous information
 
 I like Vim. I am also beginning to learn Emacs.
   I use OS X on a Macbook Pro 2014 13 inch.
@@ -13,7 +13,7 @@ customisation fun, it is sometimes too time consuming.
 I change color schemes in everything all the time.
 
 
-#### ON PROMPTS #####
+#### on prompts
 
 I am quite strongly against shell prompts like this: http://aperiodic.net/phil/prompt/normal.png
 
@@ -23,7 +23,7 @@ I want to know what directory I'm in. I'd like it to look nice.
   If I need to know what git branch I'm on... `git branch`
 
 
-#### ON EDITORS
+#### on editors
 
 http://en.wikipedia.org/wiki/Editor_war
 http://unix.stackexchange.com/questions/986/what-are-the-pros-and-cons-of-vim-and-emacs
@@ -35,6 +35,6 @@ I honestly couldn't care less anymore about the 'editor wars'. I started with Te
   I'll use nano. I don't care what editor you use, but I am interested in it if you have customised it to a large extent as I like to customise things. There are more important things in the world than which program somebody uses to edit data.
 
 
-#### ON COMPUTERS
+#### on computers
 
 They're all stupid.
