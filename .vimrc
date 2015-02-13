@@ -2,7 +2,6 @@
 
 if !has('nvim') && !has('macvim') && has('mac')
   echo "please use neovim"
-"  exit
 endif
 
 " =============== CONTENTS (press * on md5) ============ "
@@ -17,7 +16,6 @@ endif
 " backups             - d65afaadb40c8ecfab29b38d74ed9190 "
 " filetype specific   - 90aca44b20c4fec7cc326e3e6d5c8265 "
 " quick-open files    - c2b048731a310a5e20498aa324634ca0 "
-" misc. functions     - 0f2ead6ec51179fdaa84033b6bc41fc5 "
 " ====================================================== "
 
 " ------------------------------------------------
@@ -33,10 +31,9 @@ set hidden                 " hide buffer when it is abandoned
 set ttyfast                " imporove redrawing smoothness
 set backspace=indent,eol,start " allow backspacing over indent, eol, sol
 set nonumber               " don't show line numbers
-set laststatus=1           " only show status line with multiple windows
+set laststatus=2           " always show statusline
 set history=1000           " remember 1000 ':' commands
 set showbreak=↪            " show this character on folded lines
-set matchtime=3            " highlight parentheses for 30 1/10s of a second
 set splitright             " vertically split windows onto the right side
 set notitle                " don't set window name to 'titlestring' or default
 set titlestring="~ vim ~"  " ... this is the title string
@@ -51,6 +48,8 @@ set listchars=tab:▸\ ,extends:❯,precedes:❮
 set mouse=a                " enable mouse control for all modes
 set breakindent            " continue indentation on wrapped lines (v7.4.338+)
 set showcmd                " show info on in-progress commmands (:help showcmd)
+set showmatch              " in insert mode, show matching brackets...
+set matchtime=3            " ...for 3/10s of a second
 
 set expandtab      " use spaces for indentation
 set smarttab       " insert 'shiftwidth' spaces and remove 'shiftwidth' spaces
@@ -96,29 +95,38 @@ augroup END
 " Required by vim-plug
 call plug#begin('~/.vim/plugged')
 
-" Interface
+" Interface ---------------------------------------------------------------
 Plug 'ap/vim-css-color'              " Show CSS colors in their color
 Plug 'itchyny/vim-highlighturl'      " URL highlight everywhere
 Plug 'joshhartigan/midnight.vim'     " A color scheme
 Plug 'junegunn/goyo.vim'             " Writeroom style in Vim
-
-" Text functionality
+Plug 'itchyny/lightline.vim'         " A light statusline
+Plug 'kien/rainbow_parentheses.vim'  " Coloured matching brackets
+" Text functionality ------------------------------------------------------
 Plug 'tpope/vim-surround'            " Surround text objects with characters
 Plug 'camelcasemotion'               " Text objects for CamelCase words
-Plug 'justinmk/vim-sneak'            " Motion - goto next s[char][char]
 Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
 Plug 'kana/vim-niceblock'            " Blockwise visual mode, but better
 Plug 'ervandew/supertab'             " <Tab> for completion
-
-" Other functionality
+" Web Functionality -------------------------------------------------------
+Plug 'ryanss/vim-hackernews'         " Browse HN within Vim
+Plug 'mattn/webapi-vim'              " Dependency for gist-vim
+Plug 'mattn/gist-vim'                " Post buffer/selection to Gist
+Plug 'joshhartigan/vim-reddit'       " Browse reddit in Vim
+" Language Support --------------------------------------------------------
+Plug 'sheerun/vim-polyglot'          " Support for lots of languages
+Plug 'scrooloose/syntastic'          " Syntax checking for Vim
+" Other functionality -----------------------------------------------------
 Plug 'mhinz/vim-random'              " Jump to random help tags for learning
 Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
-Plug 'sheerun/vim-polyglot'          " Support for lots of languages
 Plug 'loremipsum'                    " Insertion of dummy text
-Plug 'ryanss/vim-hackernews'         " Browse HN within Vim
+Plug 'kien/ctrlp.vim'                " Fuzzy file finder
 
 " All plugins must be inserted before this line
 call plug#end()
+
+" Plugin options can go after this point
+au VimEnter * RainbowParenthesesToggle " Turn rainbows on always
 
 
 " -------------------------------------------------------------------------
@@ -162,15 +170,16 @@ set gdefault   " Substitute all matches in a line by default
 nnoremap <leader>h :%s/
 
 " Clear search highlights on space+return
-nnoremap <leader><cr> :nohlsearch<cr>
+" (rather than :nohlsearch, this actually 'forgets'
+" what you have searched for)
+nnoremap <leader><cr> :let @/ = ""<cr>
 
-" Move between splits with w + hjkl, new splits with ws or wv
-" 'w' stands for 'window'
-nnoremap w <c-w>
+" Move between splits with s + hjkl, new splits with ss or sv
+nnoremap s <c-w>
 
 " Don't highlight results from * and #
-nnoremap * *:noh<cr>
-nnoremap # #:noh<cr>
+nnoremap * *:let @/ = ""<cr>
+nnoremap # #:let @/ = ""<cr>
 
 
 " --------------------------------------------------------------------
@@ -184,7 +193,8 @@ syntax enable
 set t_Co=256
 
 set background=dark
-color jellybeans
+color base16-default
+highlight VertSplit ctermfg=bg ctermbg=bg
 
 if has("gui_running")
   " Slightly customised highlighting - more subtle line numbers
@@ -212,9 +222,6 @@ endfunction
 
 call MakeSpacelessIabbrev("gh/", "https://github.com/")
 call MakeSpacelessIabbrev("ghj/", "https://github.com/joshhartigan/")
-
-" insert shebang for filetype
-inoreabbrev <expr> #!! "#!/usr/bin/env" . (empty(&filetype) ? '' : ' '.&filetype)
 
 
 " ----------------------------------------------
@@ -279,9 +286,11 @@ vnoremap <tab> >gv
 vnoremap <s-tab> <gv
 
 " Insert line between braces / parentheses
-inoremap {<cr> {<cr>}<c-o>O
-inoremap (<cr> (<cr>)<c-o>O
-inoremap ({<cr> ({<cr>})<c-o>O
+if (&ft != 'clojure')
+  inoremap {<cr> {<cr>}<c-o>O
+  inoremap (<cr> (<cr>)<c-o>O
+  inoremap ({<cr> ({<cr>})<c-o>O
+endif
 
 " Reload .vimrc on command
 nnoremap <leader>u :source $VIMRC<cr>
@@ -298,9 +307,6 @@ nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> t
 
 " % is too far away
 nnoremap ( %
-
-" alt-h to hide search-match highlighting
-nnoremap ˙ :noh<cr>
 
 " Sublime text nostalgia
 nnoremap <leader>P :
@@ -326,14 +332,11 @@ if &background == 'dark'
 endif
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
-" augroup cline
-"   au!
-"   au WinLeave,InsertEnter * set nocursorline
-"   au WinEnter,InsertLeave * set cursorline
-" augroup END
-
-" More stand-out cursor (it's orange!)
-highlight Cursor guibg=#FEC52E
+"  augroup cline
+"    au!
+"    au WinLeave,InsertEnter * set nocursorline
+"    au WinEnter,InsertLeave * set cursorline
+"  augroup END
 
 " Ruler at column 80
 " set cc=80
@@ -367,6 +370,13 @@ if has("gui_running")
 endif
 
 set linespace=2 " Put 2 pixels in between each line of text
+
+" Use block cursor for normal mode and thin cursor for insert mode
+" (this will only work in iTerm)
+if $TERM_PROGRAM =~ "iTerm"
+  let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+  let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+endif
 
 
 " ---------------------------------------------------------------------
@@ -436,8 +446,11 @@ au BufEnter *.rb syn match Function 'puts'
 au BufEnter *.rb syn match Function 'print'
 
 " I use the string and vector types often in c++, and I like colours
-au BufWrite *.{cc,cpp,cxx} syn match Type /string/
-au BufWrite *.{cc,cpp,cxx} syn match Type /vector/
+au BufEnter *.{cc,cpp,cxx} syn match Type /string/
+au BufEnter *.{cc,cpp,cxx} syn match Type /vector/
+
+" Highlighting almost everything in Clojure can be irritating
+au BufEnter *.clj NoMatchParen
 
 " Convert markdown link to HTML link (anywhere in line)
 nnoremap <leader>ml F[i<a href=""><esc>f[xf]xi</a><esc>ldi(2F"pf(xx
@@ -461,26 +474,3 @@ nnoremap <leader>ep :cd $PROJECTS/
 " Open .vimrc in split
 nnoremap <leader>v :sp $VIMRC<cr>
 
-
-" ---------------------------------------------------
-" quick-open files @ 0f2ead6ec51179fdaa84033b6bc41fc5
-" ---------------------------------------------------
-
-" Color scheme rotator
-function! s:color_schemes()
-  if !exists('s:all_colors')
-    let s:all_colors =
-    \ sort(map(filter(
-    \   split(globpath(&rtp, "colors/*.vim"), "\n"), 'v:val !~ "^/usr/"'),
-    \   "substitute(fnamemodify(v:val, ':t'), '\\.\\{-}$', '', '')"))
-  if !exists('s:color_index')
-    let s:color_index = index(s:all_colors, g:colors_name)
-  endif
-  let s:color_index = s(:color_index + 1) % len(s:all_colors)
-  let name = s:all_colors[s:color_index]
-  execute 'color' name
-  redraw
-  echo name
-endfunction
-
-nnoremap <F6> :call <SID>color_schemes()<cr>
