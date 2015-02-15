@@ -38,3 +38,9 @@ I honestly couldn't care less anymore about the 'editor wars'. I started with Te
 #### on computers
 
 They're all stupid.
+
+#### screenshots
+
+![terminal screenshot](http://i.imgur.com/mGxwqQL.png)
+
+![vim screenshot](http://i.imgur.com/FzXsTS8.png)
