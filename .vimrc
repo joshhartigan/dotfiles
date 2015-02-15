@@ -1,8 +1,18 @@
-" -*- use neovim -*-
+" --------------------- "
+" ᴠɪᴍ: ᴛʜᴇ ᴍᴀɢɪᴄ ᴇᴅɪᴛᴏʀ "
+" --------------------- "
 
-if !has('nvim') && !has('macvim') && has('mac')
+" -*- use neovim on mac -*-
+if has('mac') && !has('macvim') && !has('nvim')
   echo "please use neovim"
 endif
+
+" information on 'nocompatible':
+"       many people recommend `set nocompatible` to
+"       be at the first line of a .vimrc file. However,
+"       If a vimrc or gvimrc file is found during startup,
+"       vim will automatically set 'nocompatible'.
+"               see :h 'cp' for more information
 
 " =============== CONTENTS (press * on md5) ============ "
 " basic options       - 790119dc20c9c88fafb8c1387a215939 "
@@ -24,11 +34,11 @@ endif
 
 let $VIMRC = "~/.vimrc"
 
-set encoding=utf-8         " what are you, stupid?
+set encoding=utf-8         " welcome to the 21st century
 set autoindent             " copy indent from current line onto next
 set smartindent            " better indentaion with C-like (i.e. { }) languages
 set hidden                 " hide buffer when it is abandoned
-set ttyfast                " imporove redrawing smoothness
+set ttyfast                " improve redrawing smoothness
 set backspace=indent,eol,start " allow backspacing over indent, eol, sol
 set nonumber               " don't show line numbers
 set laststatus=2           " always show statusline
@@ -96,12 +106,12 @@ augroup END
 call plug#begin('~/.vim/plugged')
 
 " Interface ---------------------------------------------------------------
-Plug 'ap/vim-css-color'              " Show CSS colors in their color
 Plug 'itchyny/vim-highlighturl'      " URL highlight everywhere
 Plug 'joshhartigan/midnight.vim'     " A color scheme
 Plug 'junegunn/goyo.vim'             " Writeroom style in Vim
 Plug 'itchyny/lightline.vim'         " A light statusline
 Plug 'kien/rainbow_parentheses.vim'  " Coloured matching brackets
+Plug 'noctu.vim'                     " Adaptive color scheme
 " Text functionality ------------------------------------------------------
 Plug 'tpope/vim-surround'            " Surround text objects with characters
 Plug 'camelcasemotion'               " Text objects for CamelCase words
@@ -193,8 +203,8 @@ syntax enable
 set t_Co=256
 
 set background=dark
-color base16-default
-highlight VertSplit ctermfg=bg ctermbg=bg
+color noctu
+highlight VertSplit ctermfg=0 ctermbg=0
 
 if has("gui_running")
   " Slightly customised highlighting - more subtle line numbers
@@ -267,7 +277,7 @@ command! W :w
 cmap w!! %!sudo tee > /dev/null %
 
 " Select all text in buffer
-nnoremap <leader>a ggvG
+nnoremap <leader>a ggVG
 
 " Toggle case
 nnoremap <c-u> g~iw
@@ -295,8 +305,10 @@ endif
 " Reload .vimrc on command
 nnoremap <leader>u :source $VIMRC<cr>
 
-" Soure current line / selection
-vnoremap <leader>S y:execute @@<cr>:echo 'Sourced selection.'<cr>
+" Source current file
+nnoremap <leader>U :source %<cr>
+
+" Source current line
 nnoremap <leader>S ^vg_y:execute @@<cr>:echo 'Sourced line.'<cr>
 
 " Show current highlight group/s - very useful for creating modifications
@@ -332,11 +344,11 @@ if &background == 'dark'
 endif
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
-"  augroup cline
-"    au!
-"    au WinLeave,InsertEnter * set nocursorline
-"    au WinEnter,InsertLeave * set cursorline
-"  augroup END
+augroup cline
+  au!
+  au WinLeave,InsertEnter * set nocursorline
+  au WinEnter,InsertLeave * set cursorline
+augroup END
 
 " Ruler at column 80
 " set cc=80
@@ -439,7 +451,7 @@ au WinLeave *.{md,txt} set nospell
 
 " Auto golang formatting
 autocmd FileType go autocmd BufWritePre <buffer> Fmt
-" ... not that I use Go anymore. It sucks.
+" ... not that I use Go anymore. It sucks (mostly).
 
 " 'puts' is used for debugging a lot, so I make it more visible.
 au BufEnter *.rb syn match Function 'puts'
@@ -473,4 +485,3 @@ nnoremap <leader>ep :cd $PROJECTS/
 
 " Open .vimrc in split
 nnoremap <leader>v :sp $VIMRC<cr>
-
