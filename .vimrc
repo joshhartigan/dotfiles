@@ -26,6 +26,7 @@ endif
 " backups             - d65afaadb40c8ecfab29b38d74ed9190 "
 " filetype specific   - 90aca44b20c4fec7cc326e3e6d5c8265 "
 " quick-open files    - c2b048731a310a5e20498aa324634ca0 "
+" functions           - c938316bde540963a92a96a0bcd481c9 "
 " ====================================================== "
 
 " ------------------------------------------------
@@ -60,6 +61,7 @@ set breakindent            " continue indentation on wrapped lines (v7.4.338+)
 set showcmd                " show info on in-progress commmands (:help showcmd)
 set showmatch              " in insert mode, show matching brackets...
 set matchtime=3            " ...for 3/10s of a second
+set cursorline             " at first put cline on, then see `augroup cline`
 
 set expandtab      " use spaces for indentation
 set smarttab       " insert 'shiftwidth' spaces and remove 'shiftwidth' spaces
@@ -117,7 +119,8 @@ Plug 'tpope/vim-surround'            " Surround text objects with characters
 Plug 'camelcasemotion'               " Text objects for CamelCase words
 Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
 Plug 'kana/vim-niceblock'            " Blockwise visual mode, but better
-Plug 'ervandew/supertab'             " <Tab> for completion
+Plug 'SirVer/ultisnips'              " Powerful snippet engine
+Plug 'honza/vim-snippets'            " Snippets for all sorts of languages
 " Web Functionality -------------------------------------------------------
 Plug 'ryanss/vim-hackernews'         " Browse HN within Vim
 Plug 'mattn/webapi-vim'              " Dependency for gist-vim
@@ -126,17 +129,22 @@ Plug 'joshhartigan/vim-reddit'       " Browse reddit in Vim
 " Language Support --------------------------------------------------------
 Plug 'sheerun/vim-polyglot'          " Support for lots of languages
 Plug 'scrooloose/syntastic'          " Syntax checking for Vim
+Plug 'joshhartigan/node.vim'         " Run javascript inside vim
 " Other functionality -----------------------------------------------------
 Plug 'mhinz/vim-random'              " Jump to random help tags for learning
 Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
 Plug 'loremipsum'                    " Insertion of dummy text
 Plug 'kien/ctrlp.vim'                " Fuzzy file finder
+Plug 'tpope/vim-vinegar'             " Enhanced directory browser
 
 " All plugins must be inserted before this line
 call plug#end()
 
 " Plugin options can go after this point
 au VimEnter * RainbowParenthesesToggle " Turn rainbows on always
+let g:UltiSnipsExpandTrigger="<tab>"   " Use tab for snippet completion
+let g:UltiSnipsJumpForwardTrigger="<leader>"
+let g:UltiSnipsJumpBackwardTrigger="<S-leader>"
 
 
 " -------------------------------------------------------------------------
@@ -149,10 +157,28 @@ nnoremap L $
 vnoremap L $
 
 " Move up and down a bit faster
-nnoremap N 9j
-vnoremap N 9j
-nnoremap M 9k
-vnoremap M 9k
+func! Scroll(dir, distance)
+  for i in range(a:distance)
+    let start = reltime()
+    if a:dir ==# 'd'
+      normal! j
+    elseif a:dir ==# 'u'
+      normal! k
+    endif
+    redraw
+    let so_far = s:millisecs_since(start)
+    let duration = 30
+    let wait = float2nr(duration-so_far)
+    if wait > 0
+      exec 'sleep ' . wait . 'm'
+    endif
+  endfor
+endfunc
+
+nnoremap N :silent call Scroll('d', 9)<cr>
+vnoremap N :silent call Scroll('u', 9)<cr>
+nnoremap N :silent call Scroll('d', 9)<cr>
+vnoremap M :silent call Scroll('u', 9)<cr>
 
 " Emacs-like Home/End in insert and command mode
 inoremap <c-a> <esc>I
@@ -160,8 +186,9 @@ inoremap <c-e> <esc>A
 cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 
-" Keep the current line 5 lines from the ends of the screen
-set scrolloff=5
+" Keep the current line 999 lines from the ends of the screen
+" (basically in the center)
+set scrolloff=999
 
 " Keep full j / k functionality on wrapped lines
 " and use gj / gk for default functionality
@@ -203,7 +230,7 @@ syntax enable
 set t_Co=256
 
 set background=dark
-color noctu
+color molokai
 highlight VertSplit ctermfg=0 ctermbg=0
 
 if has("gui_running")
@@ -485,3 +512,13 @@ nnoremap <leader>ep :cd $PROJECTS/
 
 " Open .vimrc in split
 nnoremap <leader>v :sp $VIMRC<cr>
+
+" -----------------------------------------------
+" functions @ 790119dc20c9c88fafb8c1387a215939
+" (this is for just miscellaneous util functions)
+" -----------------------------------------------
+
+func! s:millisecs_since(time)
+  let cost = split(reltimestr(reltime(a:time)), '\.')
+  return str2nr(cost[0]) * 1000 + str2nr(cost[1]) / 1000.0
+endfunc
