@@ -26,7 +26,7 @@ endif
 " backups             - d65afaadb40c8ecfab29b38d74ed9190 "
 " filetype specific   - 90aca44b20c4fec7cc326e3e6d5c8265 "
 " quick-open files    - c2b048731a310a5e20498aa324634ca0 "
-" functions           - c938316bde540963a92a96a0bcd481c9 "
+" functions / misc    - c938316bde540963a92a96a0bcd481c9 "
 " ====================================================== "
 
 " ------------------------------------------------
@@ -121,6 +121,7 @@ Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
 Plug 'kana/vim-niceblock'            " Blockwise visual mode, but better
 Plug 'SirVer/ultisnips'              " Powerful snippet engine
 Plug 'honza/vim-snippets'            " Snippets for all sorts of languages
+Plug 'ervandew/supertab'             " Autocompletion simpler than YCM or NC
 " Web Functionality -------------------------------------------------------
 Plug 'ryanss/vim-hackernews'         " Browse HN within Vim
 Plug 'mattn/webapi-vim'              " Dependency for gist-vim
@@ -142,9 +143,10 @@ call plug#end()
 
 " Plugin options can go after this point
 au VimEnter * RainbowParenthesesToggle " Turn rainbows on always
+au VimEnter * RainbowParenthesesLoadSquare " Including for square brackets
 let g:UltiSnipsExpandTrigger="<tab>"   " Use tab for snippet completion
-let g:UltiSnipsJumpForwardTrigger="<leader>"
-let g:UltiSnipsJumpBackwardTrigger="<S-leader>"
+let g:UltiSnipsJumpForwardTrigger="<leader>" " Jump forward in completion
+let g:UltiSnipsJumpBackwardTrigger="<S-leader>" " Jump backward in completion
 
 
 " -------------------------------------------------------------------------
@@ -176,7 +178,7 @@ func! Scroll(dir, distance)
 endfunc
 
 nnoremap N :silent call Scroll('d', 9)<cr>
-vnoremap N :silent call Scroll('u', 9)<cr>
+nnoremap M :silent call Scroll('u', 9)<cr>
 nnoremap N :silent call Scroll('d', 9)<cr>
 vnoremap M :silent call Scroll('u', 9)<cr>
 
@@ -513,12 +515,17 @@ nnoremap <leader>ep :cd $PROJECTS/
 " Open .vimrc in split
 nnoremap <leader>v :sp $VIMRC<cr>
 
-" -----------------------------------------------
-" functions @ 790119dc20c9c88fafb8c1387a215939
-" (this is for just miscellaneous util functions)
-" -----------------------------------------------
+" -----------------------------------------------------
+" functions and misc @ c938316bde540963a92a96a0bcd481c9
+" (any random stuff that doesn't fit anywhere else)
+" -----------------------------------------------------
 
 func! s:millisecs_since(time)
   let cost = split(reltimestr(reltime(a:time)), '\.')
   return str2nr(cost[0]) * 1000 + str2nr(cost[1]) / 1000.0
 endfunc
+
+" I need to learn these
+command! JavaScriptSnippets
+      \ execute "vsp " . expand("~") . "/.vim/plugged/vim-snippets/UltiSnips/javascript.snippets"
+
