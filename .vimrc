@@ -7,6 +7,10 @@ if has('mac') && !has('macvim') && !has('nvim')
   echo "please use neovim"
 endif
 
+" this is something that I toggle a lot,
+" so it is easier to have it very accessible right here
+let iWantCursorLine = 0
+
 " information on 'nocompatible':
 "       many people recommend `set nocompatible` to
 "       be at the first line of a .vimrc file. However,
@@ -14,20 +18,20 @@ endif
 "       vim will automatically set 'nocompatible'.
 "               see :h 'cp' for more information
 
-" =============== CONTENTS (press * on md5) ============ "
-" basic options       - 790119dc20c9c88fafb8c1387a215939 "
-" plugins             - ee114926568bfaed70b982a47c8be743 "
-" moving around etc.  - 0a272fef246e9a1ccbcd41430d1c8fa5 "
-" syntax etc.         - e1150751eabad1616657096d1fc161e8 "
-" abbreviations       - 6ba63c409ec6ad4418d5a0fe73986bc5 "
-" keybindings         - 1ec442eb14483faf21f007d4672977f5 "
-" interface           - 78ceb1219085f26b5b14667ad54e68fb "
-" text and files etc. - c1b2b7a346e9bfea3307cbd4a6e8bf5d "
-" backups             - d65afaadb40c8ecfab29b38d74ed9190 "
-" filetype specific   - 90aca44b20c4fec7cc326e3e6d5c8265 "
-" quick-open files    - c2b048731a310a5e20498aa324634ca0 "
-" functions / misc    - c938316bde540963a92a96a0bcd481c9 "
-" ====================================================== "
+" =============== CONTENTS (press * on md5) ============
+" basic options       - 790119dc20c9c88fafb8c1387a215939
+" plugins             - ee114926568bfaed70b982a47c8be743
+" moving around etc.  - 0a272fef246e9a1ccbcd41430d1c8fa5
+" syntax etc.         - e1150751eabad1616657096d1fc161e8
+" abbreviations       - 6ba63c409ec6ad4418d5a0fe73986bc5
+" keybindings         - 1ec442eb14483faf21f007d4672977f5
+" interface           - 78ceb1219085f26b5b14667ad54e68fb
+" text and files etc. - c1b2b7a346e9bfea3307cbd4a6e8bf5d
+" backups             - d65afaadb40c8ecfab29b38d74ed9190
+" filetype specific   - 90aca44b20c4fec7cc326e3e6d5c8265
+" quick-open files    - c2b048731a310a5e20498aa324634ca0
+" functions / misc    - c938316bde540963a92a96a0bcd481c9
+" ======================================================
 
 " ------------------------------------------------
 " basic options @ 790119dc20c9c88fafb8c1387a215939
@@ -61,7 +65,12 @@ set breakindent            " continue indentation on wrapped lines (v7.4.338+)
 set showcmd                " show info on in-progress commmands (:help showcmd)
 set showmatch              " in insert mode, show matching brackets...
 set matchtime=3            " ...for 3/10s of a second
-set cursorline             " at first put cline on, then see `augroup cline`
+
+if iWantCursorLine
+  set cursorline
+else
+  set nocursorline
+endif
 
 set expandtab      " use spaces for indentation
 set smarttab       " insert 'shiftwidth' spaces and remove 'shiftwidth' spaces
@@ -114,13 +123,13 @@ Plug 'junegunn/goyo.vim'             " Writeroom style in Vim
 Plug 'itchyny/lightline.vim'         " A light statusline
 Plug 'kien/rainbow_parentheses.vim'  " Coloured matching brackets
 Plug 'noctu.vim'                     " Adaptive color scheme
+Plug 'tomasr/molokai'                " Classic color scheme
+Plug 'morhetz/gruvbox'               " Retro groove color scheme
 " Text functionality ------------------------------------------------------
 Plug 'tpope/vim-surround'            " Surround text objects with characters
 Plug 'camelcasemotion'               " Text objects for CamelCase words
 Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
 Plug 'kana/vim-niceblock'            " Blockwise visual mode, but better
-Plug 'SirVer/ultisnips'              " Powerful snippet engine
-Plug 'honza/vim-snippets'            " Snippets for all sorts of languages
 Plug 'ervandew/supertab'             " Autocompletion simpler than YCM or NC
 " Web Functionality -------------------------------------------------------
 Plug 'ryanss/vim-hackernews'         " Browse HN within Vim
@@ -144,10 +153,6 @@ call plug#end()
 " Plugin options can go after this point
 au VimEnter * RainbowParenthesesToggle " Turn rainbows on always
 au VimEnter * RainbowParenthesesLoadSquare " Including for square brackets
-let g:UltiSnipsExpandTrigger="<tab>"   " Use tab for snippet completion
-let g:UltiSnipsJumpForwardTrigger="<leader>" " Jump forward in completion
-let g:UltiSnipsJumpBackwardTrigger="<S-leader>" " Jump backward in completion
-
 
 " -------------------------------------------------------------------------
 " moving around, searching, and patterns @ 0a272fef246e9a1ccbcd41430d1c8fa5
@@ -177,10 +182,12 @@ func! Scroll(dir, distance)
   endfor
 endfunc
 
-nnoremap N :silent call Scroll('d', 9)<cr>
-nnoremap M :silent call Scroll('u', 9)<cr>
-nnoremap N :silent call Scroll('d', 9)<cr>
-vnoremap M :silent call Scroll('u', 9)<cr>
+command! -nargs=* Scroll call Scroll(<f-args>)
+
+nnoremap N 9j
+vnoremap N 9j
+nnoremap M 9k
+vnoremap M 9k
 
 " Emacs-like Home/End in insert and command mode
 inoremap <c-a> <esc>I
@@ -220,6 +227,16 @@ nnoremap s <c-w>
 nnoremap * *:let @/ = ""<cr>
 nnoremap # #:let @/ = ""<cr>
 
+" I forgot about these keys
+inoremap <right> <esc>>>a
+inoremap <left>  <esc><<a
+inoremap <up>    <esc>ddkPa
+inoremap <down>  <esc>ddpa
+
+nnoremap <right> <esc>>>
+nnoremap <left>  <esc><<
+nnoremap <up>    <esc>ddkP
+nnoremap <down>  <esc>ddp
 
 " --------------------------------------------------------------------
 " syntax, highlighting and spelling @ e1150751eabad1616657096d1fc161e8
@@ -232,8 +249,7 @@ syntax enable
 set t_Co=256
 
 set background=dark
-color molokai
-highlight VertSplit ctermfg=0 ctermbg=0
+color garden
 
 if has("gui_running")
   " Slightly customised highlighting - more subtle line numbers
@@ -294,6 +310,8 @@ nnoremap b :w<cr>
 
 " Use , rather than ; for repeating f/t/F/T motions
 nnoremap , ;
+" And use < to go backwards
+nnoremap < ,
 
 " Prevent hours of time / megajoules of energy
 nnoremap ; :
@@ -317,8 +335,8 @@ inoremap <c-u> <esc>ua
 " Run shell commands; print output in seperate buffer
 command! -complete=shellcmd -nargs=* R belowright 15new | r ! <args>
 
-" Inline calculator
-inoremap <c-b> <c-o>yiW<end>=<c-r>=<c-r>0<cr>
+" Inline capital letter that only shows result
+inoremap <c-B> <c-o>yiW<end>=<c-r>=<c-r>0<cr><esc>F=a<space><esc>hdaW
 
 " Sublime-esque indentation in visual mode ([un]indent; reselect)
 vnoremap <tab> >gv
@@ -338,7 +356,7 @@ nnoremap <leader>u :source $VIMRC<cr>
 nnoremap <leader>U :source %<cr>
 
 " Source current line
-nnoremap <leader>S ^vg_y:execute @@<cr>:echo 'Sourced line.'<cr>
+nnoremap <leader>S ^vg_y:execute @@<cr>:echo 'sourced line'<cr>
 
 " Show current highlight group/s - very useful for creating modifications
 " to syntax highlighting.
@@ -373,11 +391,13 @@ if &background == 'dark'
 endif
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
-augroup cline
-  au!
-  au WinLeave,InsertEnter * set nocursorline
-  au WinEnter,InsertLeave * set cursorline
-augroup END
+if iWantCursorLine
+  augroup cline
+    au!
+    au WinLeave,InsertEnter * set nocursorline
+    au WinEnter,InsertLeave * set cursorline
+  augroup END
+end
 
 " Ruler at column 80
 " set cc=80
@@ -408,15 +428,18 @@ if has("gui_running")
   set guioptions-=L " Don't show left scrollbar with vsplits
   set guioptions-=e " Use non-gui tabs
 
+  set linespace=2 " Put 2 pixels in between each line of text
+
 endif
 
-set linespace=2 " Put 2 pixels in between each line of text
 
 " Use block cursor for normal mode and thin cursor for insert mode
 " (this will only work in iTerm)
 if $TERM_PROGRAM =~ "iTerm"
   let &t_SI = "\<Esc>]50;CursorShape=1\x7"
   let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+  " Upon exit, return to thin cursor
+  au VimLeave * let &t_EI = "\<Esc>]50;CursorShape=1\x7"
 endif
 
 
@@ -524,8 +547,4 @@ func! s:millisecs_since(time)
   let cost = split(reltimestr(reltime(a:time)), '\.')
   return str2nr(cost[0]) * 1000 + str2nr(cost[1]) / 1000.0
 endfunc
-
-" I need to learn these
-command! JavaScriptSnippets
-      \ execute "vsp " . expand("~") . "/.vim/plugged/vim-snippets/UltiSnips/javascript.snippets"
 
