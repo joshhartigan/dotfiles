@@ -1,15 +1,33 @@
-" --------------------- "
-" ᴠɪᴍ: ᴛʜᴇ ᴍᴀɢɪᴄ ᴇᴅɪᴛᴏʀ "
-" --------------------- "
-
 " -*- use neovim on mac -*-
 if has('mac') && !has('macvim') && !has('nvim')
   echo "please use neovim"
 endif
 
-" this is something that I toggle a lot,
-" so it is easier to have it very accessible right here
-let iWantCursorLine = 0
+" accessible values for features that I toggle a lot
+let useCursorLine = 0
+let useSpellCheck = 0
+
+" start vim with a scratch buffer when it isn't supplied
+" with any arguments, just like emacs
+au VimEnter * if empty(expand('%')) | set buftype=nofile | endif
+
+" CONTENTS (press * on md5):
+"   basic options       - 790119dc20c9c88fafb8c1387a215939
+"   plugins             - ee114926568bfaed70b982a47c8be743
+"   moving around etc.  - 0a272fef246e9a1ccbcd41430d1c8fa5
+"   syntax etc.         - e1150751eabad1616657096d1fc161e8
+"   abbreviations       - 6ba63c409ec6ad4418d5a0fe73986bc5
+"   keybindings         - 1ec442eb14483faf21f007d4672977f5
+"   interface           - 78ceb1219085f26b5b14667ad54e68fb
+"   text and files etc. - c1b2b7a346e9bfea3307cbd4a6e8bf5d
+"   backups             - d65afaadb40c8ecfab29b38d74ed9190
+"   filetype specific   - 90aca44b20c4fec7cc326e3e6d5c8265
+"   quick-open files    - c2b048731a310a5e20498aa324634ca0
+"   functions / misc    - c938316bde540963a92a96a0bcd481c9
+
+" ------------------------------------------------
+" basic options @ 790119dc20c9c88fafb8c1387a215939
+" ------------------------------------------------
 
 " information on 'nocompatible':
 "       many people recommend `set nocompatible` to
@@ -17,25 +35,6 @@ let iWantCursorLine = 0
 "       If a vimrc or gvimrc file is found during startup,
 "       vim will automatically set 'nocompatible'.
 "               see :h 'cp' for more information
-
-" =============== CONTENTS (press * on md5) ============
-" basic options       - 790119dc20c9c88fafb8c1387a215939
-" plugins             - ee114926568bfaed70b982a47c8be743
-" moving around etc.  - 0a272fef246e9a1ccbcd41430d1c8fa5
-" syntax etc.         - e1150751eabad1616657096d1fc161e8
-" abbreviations       - 6ba63c409ec6ad4418d5a0fe73986bc5
-" keybindings         - 1ec442eb14483faf21f007d4672977f5
-" interface           - 78ceb1219085f26b5b14667ad54e68fb
-" text and files etc. - c1b2b7a346e9bfea3307cbd4a6e8bf5d
-" backups             - d65afaadb40c8ecfab29b38d74ed9190
-" filetype specific   - 90aca44b20c4fec7cc326e3e6d5c8265
-" quick-open files    - c2b048731a310a5e20498aa324634ca0
-" functions / misc    - c938316bde540963a92a96a0bcd481c9
-" ======================================================
-
-" ------------------------------------------------
-" basic options @ 790119dc20c9c88fafb8c1387a215939
-" ------------------------------------------------
 
 let $VIMRC = "~/.vimrc"
 
@@ -66,7 +65,7 @@ set showcmd                " show info on in-progress commmands (:help showcmd)
 set showmatch              " in insert mode, show matching brackets...
 set matchtime=3            " ...for 3/10s of a second
 
-if iWantCursorLine
+if useCursorLine
   set cursorline
 else
   set nocursorline
@@ -123,8 +122,7 @@ Plug 'junegunn/goyo.vim'             " Writeroom style in Vim
 Plug 'itchyny/lightline.vim'         " A light statusline
 Plug 'kien/rainbow_parentheses.vim'  " Coloured matching brackets
 Plug 'noctu.vim'                     " Adaptive color scheme
-Plug 'tomasr/molokai'                " Classic color scheme
-Plug 'morhetz/gruvbox'               " Retro groove color scheme
+Plug 'joshhartigan/vim-showcolors'   " Show all possible color options
 " Text functionality ------------------------------------------------------
 Plug 'tpope/vim-surround'            " Surround text objects with characters
 Plug 'camelcasemotion'               " Text objects for CamelCase words
@@ -145,7 +143,7 @@ Plug 'mhinz/vim-random'              " Jump to random help tags for learning
 Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
 Plug 'loremipsum'                    " Insertion of dummy text
 Plug 'kien/ctrlp.vim'                " Fuzzy file finder
-Plug 'tpope/vim-vinegar'             " Enhanced directory browser
+" -------------------------------------------------------------------------
 
 " All plugins must be inserted before this line
 call plug#end()
@@ -153,6 +151,12 @@ call plug#end()
 " Plugin options can go after this point
 au VimEnter * RainbowParenthesesToggle " Turn rainbows on always
 au VimEnter * RainbowParenthesesLoadSquare " Including for square brackets
+
+let g:lightline = {
+      \ 'colorscheme': 'solarized_dark',
+      \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
+      \ }
+
 
 " -------------------------------------------------------------------------
 " moving around, searching, and patterns @ 0a272fef246e9a1ccbcd41430d1c8fa5
@@ -195,9 +199,8 @@ inoremap <c-e> <esc>A
 cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 
-" Keep the current line 999 lines from the ends of the screen
-" (basically in the center)
-set scrolloff=999
+" Keep the current line 20 lines from the ends of the screen
+set scrolloff=20
 
 " Keep full j / k functionality on wrapped lines
 " and use gj / gk for default functionality
@@ -238,6 +241,10 @@ nnoremap <left>  <esc><<
 nnoremap <up>    <esc>ddkP
 nnoremap <down>  <esc>ddp
 
+" This allows one less keypress for going to line X
+" e.g. 151\ will take me to line 151.
+nnoremap \ G
+
 " --------------------------------------------------------------------
 " syntax, highlighting and spelling @ e1150751eabad1616657096d1fc161e8
 " --------------------------------------------------------------------
@@ -277,6 +284,11 @@ endfunction
 
 call MakeSpacelessIabbrev("gh/", "https://github.com/")
 call MakeSpacelessIabbrev("ghj/", "https://github.com/joshhartigan/")
+
+if &ft == 'javascript'
+  call MakeSpacelessIabbrev("cl", "console.log(")
+  call MakeSpacelessIabbrev("req", "require('")
+endif
 
 
 " ----------------------------------------------
@@ -350,10 +362,10 @@ if (&ft != 'clojure')
 endif
 
 " Reload .vimrc on command
-nnoremap <leader>u :source $VIMRC<cr>
+nnoremap <leader>u :source $VIMRC<cr>:echo 'sourced vimrc'<cr>
 
 " Source current file
-nnoremap <leader>U :source %<cr>
+nnoremap <leader>U :source %<cr>:echo 'sourced file'<cr>
 
 " Source current line
 nnoremap <leader>S ^vg_y:execute @@<cr>:echo 'sourced line'<cr>
@@ -378,6 +390,9 @@ nnoremap <leader>p :set paste!<cr>:set paste?<cr>
 nmap <silent> <leader>I ^vio<C-V>I
 nmap <silent> <leader>A ^vio<C-V>$A
 
+" Split line (opposite motion to joining lines with J)
+nnoremap S i<cr><esc>k$
+
 
 " --------------------------------------------
 " interface @ 78ceb1219085f26b5b14667ad54e68fb
@@ -391,7 +406,7 @@ if &background == 'dark'
 endif
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
-if iWantCursorLine
+if useCursorLine
   augroup cline
     au!
     au WinLeave,InsertEnter * set nocursorline
@@ -441,6 +456,11 @@ if $TERM_PROGRAM =~ "iTerm"
   " Upon exit, return to thin cursor
   au VimLeave * let &t_EI = "\<Esc>]50;CursorShape=1\x7"
 endif
+
+" Underline search matches rather than highlighting them
+" (undercurl is rarely available, but if it isn't, it just
+" subsitutes for underline :D)
+highlight Search ctermbg=black ctermfg=brown cterm=undercurl
 
 
 " ---------------------------------------------------------------------
@@ -498,8 +518,10 @@ set noswapfile               " I hate swap files; they must burn
 
 " Usually .txt or .md is for documentation / info, in which
 " case I will want spellchecking on.
-au WinEnter *.{md,txt} set spell
-au WinLeave *.{md,txt} set nospell
+if useSpellCheck
+  au WinEnter *.{md,txt} set spell
+  au WinLeave *.{md,txt} set nospell
+endif
 
 " Auto golang formatting
 autocmd FileType go autocmd BufWritePre <buffer> Fmt
