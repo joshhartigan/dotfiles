@@ -4,7 +4,8 @@ if has('mac') && !has('macvim') && !has('nvim')
 endif
 
 " accessible values for features that I toggle a lot
-let useCursorLine = 0
+let useCursorLine = 1
+  let cursorLineOnlyInNormal = 0
 let useSpellCheck = 0
 
 " start vim with a scratch buffer when it isn't supplied
@@ -123,21 +124,24 @@ Plug 'itchyny/lightline.vim'         " A light statusline
 Plug 'kien/rainbow_parentheses.vim'  " Coloured matching brackets
 Plug 'noctu.vim'                     " Adaptive color scheme
 Plug 'joshhartigan/vim-showcolors'   " Show all possible color options
+Plug 'tomasr/molokai'                " Famous color scheme
+Plug 'Yggdroot/indentLine'           " Display indentation levels
 " Text functionality ------------------------------------------------------
 Plug 'tpope/vim-surround'            " Surround text objects with characters
 Plug 'camelcasemotion'               " Text objects for CamelCase words
 Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
 Plug 'kana/vim-niceblock'            " Blockwise visual mode, but better
 Plug 'ervandew/supertab'             " Autocompletion simpler than YCM or NC
+Plug 'Raimondi/delimitMate'          " Delimiter auto-matching
 " Web Functionality -------------------------------------------------------
 Plug 'ryanss/vim-hackernews'         " Browse HN within Vim
 Plug 'mattn/webapi-vim'              " Dependency for gist-vim
 Plug 'mattn/gist-vim'                " Post buffer/selection to Gist
 Plug 'joshhartigan/vim-reddit'       " Browse reddit in Vim
 " Language Support --------------------------------------------------------
-Plug 'sheerun/vim-polyglot'          " Support for lots of languages
 Plug 'scrooloose/syntastic'          " Syntax checking for Vim
 Plug 'joshhartigan/node.vim'         " Run javascript inside vim
+Plug 'pangloss/vim-javascript'       " Improved JS syntax
 " Other functionality -----------------------------------------------------
 Plug 'mhinz/vim-random'              " Jump to random help tags for learning
 Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
@@ -156,6 +160,15 @@ let g:lightline = {
       \ 'colorscheme': 'solarized_dark',
       \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
       \ }
+
+let javascript_enable_domhtmlcss = 1
+let b:javascript_fold=1
+
+" No delimitMate for clojure
+au VimEnter *.clj DelimitMateOff
+
+" Better mode for the molokai color scheme
+let g:rehash256 = 1
 
 
 " -------------------------------------------------------------------------
@@ -256,7 +269,7 @@ syntax enable
 set t_Co=256
 
 set background=dark
-color garden
+color molokai
 
 if has("gui_running")
   " Slightly customised highlighting - more subtle line numbers
@@ -285,10 +298,8 @@ endfunction
 call MakeSpacelessIabbrev("gh/", "https://github.com/")
 call MakeSpacelessIabbrev("ghj/", "https://github.com/joshhartigan/")
 
-if &ft == 'javascript'
-  call MakeSpacelessIabbrev("cl", "console.log(")
-  call MakeSpacelessIabbrev("req", "require('")
-endif
+call MakeSpacelessIabbrev("cl", "console.log(")
+call MakeSpacelessIabbrev("req", "require('")
 
 
 " ----------------------------------------------
@@ -354,12 +365,12 @@ inoremap <c-B> <c-o>yiW<end>=<c-r>=<c-r>0<cr><esc>F=a<space><esc>hdaW
 vnoremap <tab> >gv
 vnoremap <s-tab> <gv
 
-" Insert line between braces / parentheses
-if (&ft != 'clojure')
-  inoremap {<cr> {<cr>}<c-o>O
-  inoremap (<cr> (<cr>)<c-o>O
-  inoremap ({<cr> ({<cr>})<c-o>O
-endif
+" Insert line between braces / parentheses - obsolete by delimitMate
+" if (&ft != 'clojure')
+"   inoremap {<cr> {<cr>}<c-o>O
+"   inoremap (<cr> (<cr>)<c-o>O
+"   inoremap ({<cr> ({<cr>})<c-o>O
+" endif
 
 " Reload .vimrc on command
 nnoremap <leader>u :source $VIMRC<cr>:echo 'sourced vimrc'<cr>
@@ -406,7 +417,7 @@ if &background == 'dark'
 endif
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
-if useCursorLine
+if useCursorLine && cursorLineOnlyInNormal
   augroup cline
     au!
     au WinLeave,InsertEnter * set nocursorline
@@ -569,4 +580,3 @@ func! s:millisecs_since(time)
   let cost = split(reltimestr(reltime(a:time)), '\.')
   return str2nr(cost[0]) * 1000 + str2nr(cost[1]) / 1000.0
 endfunc
-
