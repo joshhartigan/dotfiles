@@ -11,11 +11,12 @@ fi
 # of default programs will override the things       #
 # they're replacing.                                 #
 export PATH=~/bin:/usr/local/bin:/usr/local/sbin:$PATH
-                                                     #
+
 # My bash prompt is colourful.                       #
 # There is a bit of indentation at the beginning to  #
 # distinguish it from command output.                #
-export PS1="    (\[\e[01;34m\]λ \W\[\e[0m\]) "
+# The \033[G stops ^C from messing up the prompt.    #
+export PS1="\[\033[G\]    \[\e[00;36m\]in \W\[\e[0m\]: "
 
 export EDITOR="vim"
 export VIMRC="$HOME/.vimrc"
@@ -43,7 +44,6 @@ alias grep='egrep -i --colour=always' # Better regex, colour, insensitive.
 alias cp='cp -iv' # Interactive and verbose `cp`
 alias mv='mv -iv' # Interactive and verbose `mv`
 alias mkdir='mkdir -p' # Create intermediate directories
-alias rm='rm -i' # Interactive (i.e. safer) `rm`
 
 alias ll='ls -FGlAhp' # Super verbose `ls`
 alias up='cd ..'
@@ -102,4 +102,31 @@ raw() {
 pb() {
   echo $1 | curl -F c=@- https://ptpb.pw
 }
+
+# This will update my GitHub .vimrc to the one that #
+# I have on my computer.                            #
+updateVimRC() {
+  git clone https://github.com/joshhartigan/dotfiles
+  cd dotfiles
+  cp ../.vimrc .
+  git add .vimrc
+  git co -m 'updated vimrc'
+  git push origin master
+  cd ..
+  rm -rf dotfiles
+}
+
+updateBashRC() {
+  git clone https://github.com/joshhartigan/dotfiles
+  cd dotfiles
+  cp ../.bashrc .
+  git add .bashrc
+  git co -m 'updated bashrc'
+  git push origin master
+  cd ..
+  rm -rf dotfiles
+}
+
+# Enable better completion for npm                  #
+. <(npm completion)
 
