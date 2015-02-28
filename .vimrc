@@ -4,13 +4,15 @@ if has('mac') && !has('macvim') && !has('nvim')
 endif
 
 " accessible values for features that I toggle a lot
-let useCursorLine = 1
+let useCursorLine = 0
   let cursorLineOnlyInNormal = 0
 let useSpellCheck = 0
 
 " start vim with a scratch buffer when it isn't supplied
-" with any arguments, just like emacs
-au VimEnter * if empty(expand('%')) | set buftype=nofile | endif
+" with any arguments, just like emacs (except this scratch
+" buffer is in markdown)
+au VimEnter * if empty(expand('%')) |
+      \ set buftype=nofile | setf markdown | endif
 
 " CONTENTS (press * on md5):
 "   basic options       - 790119dc20c9c88fafb8c1387a215939
@@ -45,13 +47,12 @@ set smartindent            " better indentaion with C-like (i.e. { }) languages
 set hidden                 " hide buffer when it is abandoned
 set ttyfast                " improve redrawing smoothness
 set backspace=indent,eol,start " allow backspacing over indent, eol, sol
-set nonumber               " don't show line numbers
+set norelativenumber       " helps prevent hjkl spamming
+set nonumber               " show the actual line number on current line
 set laststatus=2           " always show statusline
 set history=1000           " remember 1000 ':' commands
 set showbreak=↪            " show this character on folded lines
 set splitright             " vertically split windows onto the right side
-set notitle                " don't set window name to 'titlestring' or default
-set titlestring="~ vim ~"  " ... this is the title string
 set linebreak              " wrap lines only at 'breakat' characters
 set ruler                  " show positional ruler in status line
 set noerrorbells           " remove any annoying sounds / flashes (1)
@@ -59,7 +60,7 @@ set novisualbell           "                                      (2)
 set t_vb=                  "                                      (3)
 set keywordprg=":help"     " use vim-help with <K>, rather than man pages
 set list                   " show special characters, see below
-set listchars=tab:▸\ ,extends:❯,precedes:❮
+set listchars=tab:▸\ ,
 set mouse=a                " enable mouse control for all modes
 set breakindent            " continue indentation on wrapped lines (v7.4.338+)
 set showcmd                " show info on in-progress commmands (:help showcmd)
@@ -82,7 +83,7 @@ set textwidth=80   " break lines longer than 80 characters
 set wildmenu       " Show command-line autocompletions
 
 " Ignore these filetypes:
-set wildignore =*.o,*.pyc,.DS_Store,*.git/*,.node_modules/*
+set wildignore =*.o,*.pyc,.DS_Store,*.git/*,node_modules/*
 
 " Map leader to space
 nnoremap <space> <Nop>
@@ -90,13 +91,6 @@ let mapleader=" "
 
 " Resize splits equally after window resize
 au VimResized * :wincmd =
-
-" Show trailing whitespace in normal mode
-augroup trailing
-    au!
-    au InsertEnter * :set listchars-=trail:·
-    au InsertLeave * :set listchars+=trail:·
-augroup END
 
 " Make sure Vim returns to the same line when you reopen a file.
 " From Steve Losh who says "Thanks, Amit"
@@ -118,21 +112,25 @@ call plug#begin('~/.vim/plugged')
 
 " Interface ---------------------------------------------------------------
 Plug 'itchyny/vim-highlighturl'      " URL highlight everywhere
-Plug 'joshhartigan/midnight.vim'     " A color scheme
 Plug 'junegunn/goyo.vim'             " Writeroom style in Vim
 Plug 'itchyny/lightline.vim'         " A light statusline
 Plug 'kien/rainbow_parentheses.vim'  " Coloured matching brackets
-Plug 'noctu.vim'                     " Adaptive color scheme
 Plug 'joshhartigan/vim-showcolors'   " Show all possible color options
-Plug 'tomasr/molokai'                " Famous color scheme
-Plug 'Yggdroot/indentLine'           " Display indentation levels
+" Color Schemes -----------------------------------------------------------
+Plug 'joshhartigan/midnight.vim'
+Plug 'noctu.vim'
+Plug 'tomasr/molokai'
+Plug 'altercation/vim-colors-solarized'
+Plug 'chriskempson/base16-vim'
 " Text functionality ------------------------------------------------------
-Plug 'tpope/vim-surround'            " Surround text objects with characters
-Plug 'camelcasemotion'               " Text objects for CamelCase words
-Plug 'joshhartigan/SimpleCommenter'  " Comment out lines simply
-Plug 'kana/vim-niceblock'            " Blockwise visual mode, but better
-Plug 'ervandew/supertab'             " Autocompletion simpler than YCM or NC
-Plug 'Raimondi/delimitMate'          " Delimiter auto-matching
+Plug 'tpope/vim-surround'              " Surround text objects with characters
+Plug 'camelcasemotion'                 " Text objects for CamelCase words
+Plug 'joshhartigan/SimpleCommenter'    " Comment out lines simply
+Plug 'kana/vim-niceblock'              " Blockwise visual mode, but better
+Plug 'ervandew/supertab'               " Autocompletion simpler than YCM or NC
+Plug 'Raimondi/delimitMate'            " Delimiter auto-matching
+Plug 'takac/vim-hardtime'              " Stop spamming hjkl!
+Plug 'bronson/vim-trailing-whitespace' " Show trailing whitespace
 " Web Functionality -------------------------------------------------------
 Plug 'ryanss/vim-hackernews'         " Browse HN within Vim
 Plug 'mattn/webapi-vim'              " Dependency for gist-vim
@@ -140,13 +138,13 @@ Plug 'mattn/gist-vim'                " Post buffer/selection to Gist
 Plug 'joshhartigan/vim-reddit'       " Browse reddit in Vim
 " Language Support --------------------------------------------------------
 Plug 'scrooloose/syntastic'          " Syntax checking for Vim
-Plug 'joshhartigan/node.vim'         " Run javascript inside vim
-Plug 'pangloss/vim-javascript'       " Improved JS syntax
+Plug 'sheerun/vim-polyglot'          " Lots of languages
 " Other functionality -----------------------------------------------------
 Plug 'mhinz/vim-random'              " Jump to random help tags for learning
 Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
 Plug 'loremipsum'                    " Insertion of dummy text
 Plug 'kien/ctrlp.vim'                " Fuzzy file finder
+Plug 'jez/vim-superman'              " Read unix man pages in Vim
 " -------------------------------------------------------------------------
 
 " All plugins must be inserted before this line
@@ -155,11 +153,6 @@ call plug#end()
 " Plugin options can go after this point
 au VimEnter * RainbowParenthesesToggle " Turn rainbows on always
 au VimEnter * RainbowParenthesesLoadSquare " Including for square brackets
-
-let g:lightline = {
-      \ 'colorscheme': 'solarized_dark',
-      \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
-      \ }
 
 let javascript_enable_domhtmlcss = 1
 let b:javascript_fold=1
@@ -269,6 +262,7 @@ syntax enable
 set t_Co=256
 
 set background=dark
+let base16colorspace=256
 color molokai
 
 if has("gui_running")
@@ -329,7 +323,7 @@ noremap Q :q<cr>
 nnoremap <leader>Q :q!<cr>
 
 " Save file quickly
-nnoremap b :w<cr>
+nnoremap <leader>b :w<cr>
 
 " Use , rather than ; for repeating f/t/F/T motions
 nnoremap , ;
@@ -365,12 +359,12 @@ inoremap <c-B> <c-o>yiW<end>=<c-r>=<c-r>0<cr><esc>F=a<space><esc>hdaW
 vnoremap <tab> >gv
 vnoremap <s-tab> <gv
 
-" Insert line between braces / parentheses - obsolete by delimitMate
-" if (&ft != 'clojure')
-"   inoremap {<cr> {<cr>}<c-o>O
-"   inoremap (<cr> (<cr>)<c-o>O
-"   inoremap ({<cr> ({<cr>})<c-o>O
-" endif
+" Insert line between braces / parentheses
+if (&ft != 'clojure')
+  inoremap {<cr> {<cr>}<c-o>O
+  inoremap (<cr> (<cr>)<c-o>O
+  inoremap ({<cr> ({<cr>})<c-o>O
+ endif
 
 " Reload .vimrc on command
 nnoremap <leader>u :source $VIMRC<cr>:echo 'sourced vimrc'<cr>
@@ -426,7 +420,7 @@ if useCursorLine && cursorLineOnlyInNormal
 end
 
 " Ruler at column 80
-" set cc=80
+set cc=80
 
 " Set font for MacVim (I only use GUI on Mac)
 " Note: I rarely use GUI at all anymore - it's much more productive
@@ -554,6 +548,8 @@ nnoremap <leader>ml F[i<a href=""><esc>f[xf]xi</a><esc>ldi(2F"pf(xx
 
 " I don't use modula2, but I do use markdown.
 au BufNewFile,BufRead,BufWrite *.md set filetype=markdown
+" Syntax highlighting for markdown code blocks
+let g:markdown_fenced_languages = ['css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml', 'html']
 
 
 " ---------------------------------------------------
