@@ -1,10 +1,10 @@
 " -*- use neovim on mac -*-
-if has('mac') && !has('macvim') && !has('nvim')
+if has('mac') && !has('gui') && !has('nvim')
   echo "please use neovim"
 endif
 
 " accessible values for features that I toggle a lot
-let useCursorLine = 0
+let useCursorLine = 1
   let cursorLineOnlyInNormal = 0
 let useSpellCheck = 0
 
@@ -62,7 +62,9 @@ set keywordprg=":help"     " use vim-help with <K>, rather than man pages
 set list                   " show special characters, see below
 set listchars=tab:▸\ ,
 set mouse=a                " enable mouse control for all modes
-set breakindent            " continue indentation on wrapped lines (v7.4.338+)
+if has("breakindent")
+  set breakindent          " continue indentation on wrapped lines (v7.4.338+)
+endif
 set showcmd                " show info on in-progress commmands (:help showcmd)
 set showmatch              " in insert mode, show matching brackets...
 set matchtime=3            " ...for 3/10s of a second
@@ -127,7 +129,6 @@ Plug 'tpope/vim-surround'              " Surround text objects with characters
 Plug 'camelcasemotion'                 " Text objects for CamelCase words
 Plug 'joshhartigan/SimpleCommenter'    " Comment out lines simply
 Plug 'kana/vim-niceblock'              " Blockwise visual mode, but better
-Plug 'ervandew/supertab'               " Autocompletion simpler than YCM or NC
 Plug 'Raimondi/delimitMate'            " Delimiter auto-matching
 Plug 'takac/vim-hardtime'              " Stop spamming hjkl!
 Plug 'bronson/vim-trailing-whitespace' " Show trailing whitespace
@@ -162,6 +163,9 @@ au VimEnter *.clj DelimitMateOff
 
 " Better mode for the molokai color scheme
 let g:rehash256 = 1
+
+" Autocomplete, always
+let g:neocomplete#enable_at_startup = 1
 
 
 " -------------------------------------------------------------------------
@@ -239,13 +243,17 @@ nnoremap # #:let @/ = ""<cr>
 " I forgot about these keys
 inoremap <right> <esc>>>a
 inoremap <left>  <esc><<a
-inoremap <up>    <esc>ddkPa
-inoremap <down>  <esc>ddpa
+inoremap <up>    <esc>ddkPi
+inoremap <down>  <esc>ddpi
 
 nnoremap <right> <esc>>>
 nnoremap <left>  <esc><<
 nnoremap <up>    <esc>ddkP
 nnoremap <down>  <esc>ddp
+
+" I have another mapping for this but who cares
+vnoremap <right> >gv
+vnoremap <left>  <gv
 
 " This allows one less keypress for going to line X
 " e.g. 151\ will take me to line 151.
@@ -261,13 +269,13 @@ syntax enable
 " 256 colors enabled in terminal
 set t_Co=256
 
-set background=dark
-let base16colorspace=256
-color molokai
-
-if has("gui_running")
-  " Slightly customised highlighting - more subtle line numbers
-  highlight LineNr guibg=bg guifg=#333333
+if has("gui") " I only use MacVim as a light scheme
+  set background=light
+  color base16-solarized
+else
+  set background=dark
+  let base16colorspace=256
+  color base16-default
 endif
 
 " Enable filetype plugins
