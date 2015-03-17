@@ -4,7 +4,7 @@ if has('mac') && !has('gui') && !has('nvim')
 endif
 
 " accessible values for features that I toggle a lot
-let useCursorLine = 1
+let useCursorLine = 0
   let cursorLineOnlyInNormal = 0
 let useSpellCheck = 0
 
@@ -48,7 +48,7 @@ set hidden                 " hide buffer when it is abandoned
 set ttyfast                " improve redrawing smoothness
 set backspace=indent,eol,start " allow backspacing over indent, eol, sol
 set norelativenumber       " helps prevent hjkl spamming
-set nonumber               " show the actual line number on current line
+set number                 " show the actual line number on current line
 set laststatus=2           " always show statusline
 set history=1000           " remember 1000 ':' commands
 set showbreak=↪            " show this character on folded lines
@@ -68,6 +68,7 @@ endif
 set showcmd                " show info on in-progress commmands (:help showcmd)
 set showmatch              " in insert mode, show matching brackets...
 set matchtime=3            " ...for 3/10s of a second
+set title                  " give the terminal a good title
 
 if useCursorLine
   set cursorline
@@ -116,7 +117,6 @@ call plug#begin('~/.vim/plugged')
 Plug 'itchyny/vim-highlighturl'      " URL highlight everywhere
 Plug 'junegunn/goyo.vim'             " Writeroom style in Vim
 Plug 'itchyny/lightline.vim'         " A light statusline
-Plug 'kien/rainbow_parentheses.vim'  " Coloured matching brackets
 Plug 'joshhartigan/vim-showcolors'   " Show all possible color options
 " Color Schemes -----------------------------------------------------------
 Plug 'joshhartigan/midnight.vim'
@@ -132,14 +132,15 @@ Plug 'kana/vim-niceblock'              " Blockwise visual mode, but better
 Plug 'Raimondi/delimitMate'            " Delimiter auto-matching
 Plug 'takac/vim-hardtime'              " Stop spamming hjkl!
 Plug 'bronson/vim-trailing-whitespace' " Show trailing whitespace
+Plug 'ervandew/supertab'               " Autocomplete
 " Web Functionality -------------------------------------------------------
-Plug 'ryanss/vim-hackernews'         " Browse HN within Vim
 Plug 'mattn/webapi-vim'              " Dependency for gist-vim
 Plug 'mattn/gist-vim'                " Post buffer/selection to Gist
 Plug 'joshhartigan/vim-reddit'       " Browse reddit in Vim
 " Language Support --------------------------------------------------------
 Plug 'scrooloose/syntastic'          " Syntax checking for Vim
 Plug 'sheerun/vim-polyglot'          " Lots of languages
+Plug 'justinmk/vim-syntax-extra'     " Better for C
 " Other functionality -----------------------------------------------------
 Plug 'mhinz/vim-random'              " Jump to random help tags for learning
 Plug 'esneider/YUNOcommit.vim'       " Y U NO Comment after so many writes?
@@ -152,8 +153,6 @@ Plug 'jez/vim-superman'              " Read unix man pages in Vim
 call plug#end()
 
 " Plugin options can go after this point
-au VimEnter * RainbowParenthesesToggle " Turn rainbows on always
-au VimEnter * RainbowParenthesesLoadSquare " Including for square brackets
 
 let javascript_enable_domhtmlcss = 1
 let b:javascript_fold=1
@@ -166,6 +165,15 @@ let g:rehash256 = 1
 
 " Autocomplete, always
 let g:neocomplete#enable_at_startup = 1
+
+" Speed up CtrlP
+let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
+      \ --ignore .git
+      \ --ignore .svn
+      \ --ignore .hg
+      \ --ignore .DS_Store
+      \ --ignore "**/*.pyc"
+      \ -g ""'
 
 
 " -------------------------------------------------------------------------
@@ -273,14 +281,38 @@ if has("gui") " I only use MacVim as a light scheme
   set background=light
   color base16-solarized
 else
-  set background=dark
   let base16colorspace=256
+  set background=dark
   color base16-default
+
+  hi Type      cterm=bold
+  hi Statement cterm=bold
 endif
+
+if g:colors_name == 'default'
+  if &number
+    " line numbers
+    hi LineNr ctermbg=8
+  endif
+  " braces, parens, commas, etc
+  hi Noise ctermfg=8
+endif
+
+if g:colors_name == 'base16-default'
+  if &number
+    hi LineNr ctermbg=bg
+  endif
+  hi Noise ctermfg=8
+endif
+
 
 " Enable filetype plugins
 filetype plugin on
 filetype indent on
+
+" Concealing stuff
+set conceallevel=2 " enable
+hi Conceal ctermfg=5 ctermbg=0
 
 
 " ------------------------------------------------
@@ -389,9 +421,6 @@ nnoremap <F8> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> t
                         \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
                         \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
-" % is too far away
-nnoremap ( %
-
 " Sublime text nostalgia
 nnoremap <leader>P :
 
@@ -405,6 +434,12 @@ nmap <silent> <leader>A ^vio<C-V>$A
 
 " Split line (opposite motion to joining lines with J)
 nnoremap S i<cr><esc>k$
+
+" Switch between buffers
+nnoremap <backspace> :bnext<cr>
+
+" Quick `make` calling - no output.
+nnoremap <leader>m :silent make\|redraw!\|cc<CR>
 
 
 " --------------------------------------------
@@ -428,7 +463,7 @@ if useCursorLine && cursorLineOnlyInNormal
 end
 
 " Ruler at column 80
-set cc=80
+" set cc=80
 
 " Set font for MacVim (I only use GUI on Mac)
 " Note: I rarely use GUI at all anymore - it's much more productive
@@ -538,7 +573,13 @@ endif
 
 " Auto golang formatting
 autocmd FileType go autocmd BufWritePre <buffer> Fmt
-" ... not that I use Go anymore. It sucks (mostly).
+" ... not that I use Go anymore.
+
+" Hooray for EcmaScript 6
+au BufRead,BufWrite *.es6 setf javascript
+
+" Stylistic JavaScript
+syntax keyword jsThis this conceal cchar=@
 
 " 'puts' is used for debugging a lot, so I make it more visible.
 au BufEnter *.rb syn match Function 'puts'
