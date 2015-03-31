@@ -1,12 +1,9 @@
-" -*- use neovim on mac -*-
-if has('mac') && !has('gui') && !has('nvim')
-  echo "please use neovim"
-endif
-
 " accessible values for features that I toggle a lot
-let useCursorLine = 0
-  let cursorLineOnlyInNormal = 0
+let useLineNumbers = 0
+let useCursorLine = 1
+let cursorLineOnlyInNormal = 1
 let useSpellCheck = 0
+let melonEmoji = 1
 
 " start vim with a scratch buffer when it isn't supplied
 " with any arguments, just like emacs (except this scratch
@@ -48,7 +45,11 @@ set hidden                 " hide buffer when it is abandoned
 set ttyfast                " improve redrawing smoothness
 set backspace=indent,eol,start " allow backspacing over indent, eol, sol
 set norelativenumber       " helps prevent hjkl spamming
-set number                 " show the actual line number on current line
+
+if useLineNumbers
+  set number               " show the actual line number on current line
+endif
+
 set laststatus=2           " always show statusline
 set history=1000           " remember 1000 ':' commands
 set showbreak=↪            " show this character on folded lines
@@ -90,7 +91,7 @@ set wildignore =*.o,*.pyc,.DS_Store,*.git/*,node_modules/*
 
 " Map leader to space
 nnoremap <space> <Nop>
-let mapleader=" "
+let mapleader = " "
 
 " Resize splits equally after window resize
 au VimResized * :wincmd =
@@ -121,9 +122,8 @@ Plug 'joshhartigan/vim-showcolors'   " Show all possible color options
 " Color Schemes -----------------------------------------------------------
 Plug 'joshhartigan/midnight.vim'
 Plug 'noctu.vim'
-Plug 'tomasr/molokai'
-Plug 'altercation/vim-colors-solarized'
-Plug 'chriskempson/base16-vim'
+Plug 'sjl/badwolf'
+Plug 'junegunn/seoul256.vim'
 " Text functionality ------------------------------------------------------
 Plug 'tpope/vim-surround'              " Surround text objects with characters
 Plug 'camelcasemotion'                 " Text objects for CamelCase words
@@ -133,12 +133,12 @@ Plug 'Raimondi/delimitMate'            " Delimiter auto-matching
 Plug 'takac/vim-hardtime'              " Stop spamming hjkl!
 Plug 'bronson/vim-trailing-whitespace' " Show trailing whitespace
 Plug 'ervandew/supertab'               " Autocomplete
+Plug 'tpope/vim-endwise'               " Auto-add 'end' or 'endif' and stuff
 " Web Functionality -------------------------------------------------------
 Plug 'mattn/webapi-vim'              " Dependency for gist-vim
 Plug 'mattn/gist-vim'                " Post buffer/selection to Gist
 Plug 'joshhartigan/vim-reddit'       " Browse reddit in Vim
 " Language Support --------------------------------------------------------
-Plug 'scrooloose/syntastic'          " Syntax checking for Vim
 Plug 'sheerun/vim-polyglot'          " Lots of languages
 Plug 'justinmk/vim-syntax-extra'     " Better for C
 " Other functionality -----------------------------------------------------
@@ -155,7 +155,7 @@ call plug#end()
 " Plugin options can go after this point
 
 let javascript_enable_domhtmlcss = 1
-let b:javascript_fold=1
+let b:javascript_fold = 1
 
 " No delimitMate for clojure
 au VimEnter *.clj DelimitMateOff
@@ -174,6 +174,15 @@ let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
       \ --ignore .DS_Store
       \ --ignore "**/*.pyc"
       \ -g ""'
+
+let g:lightline = {
+      \ 'colorscheme': 'wombat',
+      \ 'separator': { 'left': '⮀', 'right': '⮂' },
+      \ 'subseparator': { 'left': '⮁', 'right': '⮃' },
+      \ 'component': {
+      \   'readonly': '%{&readonly?"":"🍉  "}'
+      \ }
+\ }
 
 
 " -------------------------------------------------------------------------
@@ -277,16 +286,14 @@ syntax enable
 " 256 colors enabled in terminal
 set t_Co=256
 
-if has("gui") " I only use MacVim as a light scheme
-  set background=light
-  color base16-solarized
-else
-  let base16colorspace=256
-  set background=dark
-  color base16-default
+" My color scheme changes so much that it isn't worth
+" updating the vimrc file and commiting to GitHub just
+" for a small change.
+source ~/.vimcolor
 
-  hi Type      cterm=bold
-  hi Statement cterm=bold
+if 0
+  " (press <leader>S on the next line to edit this file)
+  sp ~/.vimcolor
 endif
 
 if g:colors_name == 'default'
@@ -296,15 +303,10 @@ if g:colors_name == 'default'
   endif
   " braces, parens, commas, etc
   hi Noise ctermfg=8
+  " some keywords
+  hi Type      cterm=bold
+  hi Statement cterm=bold
 endif
-
-if g:colors_name == 'base16-default'
-  if &number
-    hi LineNr ctermbg=bg
-  endif
-  hi Noise ctermfg=8
-endif
-
 
 " Enable filetype plugins
 filetype plugin on
@@ -334,6 +336,7 @@ call MakeSpacelessIabbrev("ghj/", "https://github.com/joshhartigan/")
 
 call MakeSpacelessIabbrev("cl", "console.log(")
 call MakeSpacelessIabbrev("req", "require('")
+call MakeSpacelessIabbrev("inc", "#include")
 
 
 " ----------------------------------------------
@@ -441,17 +444,22 @@ nnoremap <backspace> :bnext<cr>
 " Quick `make` calling - no output.
 nnoremap <leader>m :silent make\|redraw!\|cc<CR>
 
+" Leave terminal mode
+if has('nvim')
+  tnoremap <esc> <c-\><c-n>gg
+endif
+
 
 " --------------------------------------------
 " interface @ 78ceb1219085f26b5b14667ad54e68fb
 " --------------------------------------------
 
-if &background == 'light'
-  highlight VertSplit ctermfg=15 ctermbg=15
-endif
-if &background == 'dark'
-  highlight VertSplit ctermfg=0 ctermbg=0
-endif
+" if &background == 'light'
+"   highlight VertSplit ctermfg=15 ctermbg=15
+" endif
+" if &background == 'dark'
+"   highlight VertSplit ctermfg=0 ctermbg=0
+" endif
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
 if useCursorLine && cursorLineOnlyInNormal
@@ -589,8 +597,8 @@ au BufEnter *.rb syn match Function 'print'
 au BufEnter *.{cc,cpp,cxx} syn match Type /string/
 au BufEnter *.{cc,cpp,cxx} syn match Type /vector/
 
-" Highlighting almost everything in Clojure can be irritating
-au BufEnter *.clj NoMatchParen
+" I use this as a typedef in C
+au BufEnter *.c syn match Type /String/
 
 " Convert markdown link to HTML link (anywhere in line)
 nnoremap <leader>ml F[i<a href=""><esc>f[xf]xi</a><esc>ldi(2F"pf(xx
@@ -599,6 +607,11 @@ nnoremap <leader>ml F[i<a href=""><esc>f[xf]xi</a><esc>ldi(2F"pf(xx
 au BufNewFile,BufRead,BufWrite *.md set filetype=markdown
 " Syntax highlighting for markdown code blocks
 let g:markdown_fenced_languages = ['css', 'erb=eruby', 'javascript', 'js=javascript', 'json=javascript', 'ruby', 'sass', 'xml', 'html']
+
+au BufEnter *.css inoremap : :;<esc>i
+au BufEnter *.css inoremap ; <esc>la
+au BufLeave *.css iunmap :
+au BufLeave *.css iunmap ;
 
 
 " ---------------------------------------------------
