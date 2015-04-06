@@ -29,12 +29,14 @@ au VimEnter * if empty(expand('%')) |
 " basic options @ 790119dc20c9c88fafb8c1387a215939
 " ------------------------------------------------
 
-" information on 'nocompatible':
-"       many people recommend `set nocompatible` to
-"       be at the first line of a .vimrc file. However,
-"       If a vimrc or gvimrc file is found during startup,
-"       vim will automatically set 'nocompatible'.
-"               see :h 'cp' for more information
+if 0
+  information on 'nocompatible':
+        many people recommend `set nocompatible` to
+        be at the first line of a .vimrc file. However,
+        If a vimrc or gvimrc file is found during startup,
+        vim will automatically set 'nocompatible'.
+                see :h 'cp' for more information
+endif
 
 let $VIMRC = "~/.vimrc"
 
@@ -119,11 +121,13 @@ Plug 'itchyny/vim-highlighturl'      " URL highlight everywhere
 Plug 'junegunn/goyo.vim'             " Writeroom style in Vim
 Plug 'itchyny/lightline.vim'         " A light statusline
 Plug 'joshhartigan/vim-showcolors'   " Show all possible color options
+Plug 'bling/vim-bufferline'          " Show list of buffers in statusline
 " Color Schemes -----------------------------------------------------------
 Plug 'joshhartigan/midnight.vim'
 Plug 'noctu.vim'
 Plug 'sjl/badwolf'
 Plug 'junegunn/seoul256.vim'
+Plug 'altercation/vim-colors-solarized'
 " Text functionality ------------------------------------------------------
 Plug 'tpope/vim-surround'              " Surround text objects with characters
 Plug 'camelcasemotion'                 " Text objects for CamelCase words
@@ -133,7 +137,8 @@ Plug 'Raimondi/delimitMate'            " Delimiter auto-matching
 Plug 'takac/vim-hardtime'              " Stop spamming hjkl!
 Plug 'bronson/vim-trailing-whitespace' " Show trailing whitespace
 Plug 'ervandew/supertab'               " Autocomplete
-Plug 'tpope/vim-endwise'               " Auto-add 'end' or 'endif' and stuff
+Plug 'tpope/vim-endwise', { 'for': 'ruby' } " Auto complete 'end' keywords
+Plug 'junegunn/vim-easy-align'         " Align stuff (easily)
 " Web Functionality -------------------------------------------------------
 Plug 'mattn/webapi-vim'              " Dependency for gist-vim
 Plug 'mattn/gist-vim'                " Post buffer/selection to Gist
@@ -175,14 +180,22 @@ let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
       \ --ignore "**/*.pyc"
       \ -g ""'
 
-let g:lightline = {
-      \ 'colorscheme': 'wombat',
-      \ 'separator': { 'left': '⮀', 'right': '⮂' },
-      \ 'subseparator': { 'left': '⮁', 'right': '⮃' },
-      \ 'component': {
-      \   'readonly': '%{&readonly?"":"🍉  "}'
-      \ }
-\ }
+if melonEmoji && !has('gui_running')
+  let g:lightline = {
+        \ 'colorscheme': 'wombat',
+        \ 'component': {
+        \   'readonly': '%{&readonly?"":"🍉  "}'
+        \ }
+  \ }
+else
+  let g:lightline = { 'colorscheme': 'wombat' }
+endif
+
+" Start interactive easyalign in visual mode
+vmap <enter> <plug>(EasyAlign)
+
+" Start interactive easyalign for a motion/object
+nmap ga <plug>(EasyAlign)
 
 
 " -------------------------------------------------------------------------
@@ -316,6 +329,12 @@ filetype indent on
 set conceallevel=2 " enable
 hi Conceal ctermfg=5 ctermbg=0
 
+func! HighlightCurrentWord()
+  let word = expand("<cword>")
+  execute ':syn match Type /' . word . '/'
+endfunc
+nnoremap <leader>' :call HighlightCurrentWord()<cr>
+
 
 " ------------------------------------------------
 " abbreviations @ 6ba63c409ec6ad4418d5a0fe73986bc5
@@ -336,7 +355,8 @@ call MakeSpacelessIabbrev("ghj/", "https://github.com/joshhartigan/")
 
 call MakeSpacelessIabbrev("cl", "console.log(")
 call MakeSpacelessIabbrev("req", "require('")
-call MakeSpacelessIabbrev("inc", "#include")
+
+iabbrev psvm public static void main(String args[])
 
 
 " ----------------------------------------------
@@ -524,7 +544,8 @@ highlight Search ctermbg=black ctermfg=brown cterm=undercurl
 " ---------------------------------------------------------------------
 
 " Use foldmarker folding method (three braces to open and close)
-set foldmethod=marker
+set foldmethod=syntax
+set foldlevelstart=100 " keep all folds open by default
 
 " Simple fold-toggle bindings - the key to the left of the 'z' key
 nnoremap ` za
@@ -581,7 +602,6 @@ endif
 
 " Auto golang formatting
 autocmd FileType go autocmd BufWritePre <buffer> Fmt
-" ... not that I use Go anymore.
 
 " Hooray for EcmaScript 6
 au BufRead,BufWrite *.es6 setf javascript
