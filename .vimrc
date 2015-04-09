@@ -1,7 +1,9 @@
+" vim: set foldmethod=marker foldlevel=0:
+
 " accessible values for features that I toggle a lot
 let useLineNumbers = 0
 let useCursorLine = 1
-let cursorLineOnlyInNormal = 1
+let cursorLineOnlyInNormal = 0
 let useSpellCheck = 0
 let melonEmoji = 1
 
@@ -12,22 +14,20 @@ au VimEnter * if empty(expand('%')) |
       \ set buftype=nofile | setf markdown | endif
 
 " CONTENTS (press * on md5):
-"   basic options       - 790119dc20c9c88fafb8c1387a215939
-"   plugins             - ee114926568bfaed70b982a47c8be743
-"   moving around etc.  - 0a272fef246e9a1ccbcd41430d1c8fa5
-"   syntax etc.         - e1150751eabad1616657096d1fc161e8
-"   abbreviations       - 6ba63c409ec6ad4418d5a0fe73986bc5
-"   keybindings         - 1ec442eb14483faf21f007d4672977f5
-"   interface           - 78ceb1219085f26b5b14667ad54e68fb
-"   text and files etc. - c1b2b7a346e9bfea3307cbd4a6e8bf5d
-"   backups             - d65afaadb40c8ecfab29b38d74ed9190
-"   filetype specific   - 90aca44b20c4fec7cc326e3e6d5c8265
-"   quick-open files    - c2b048731a310a5e20498aa324634ca0
-"   functions / misc    - c938316bde540963a92a96a0bcd481c9
+"   basic options       - 790119dc20
+"   plugins             - ee11492656
+"   moving around etc.  - 0a272fef24
+"   syntax etc.         - e1150751ea
+"   abbreviations       - 6ba63c409e
+"   keybindings         - 1ec442eb14
+"   interface           - 78ceb12190
+"   text and files etc. - c1b2b7a346
+"   backups             - d65afaadb4
+"   filetype specific   - 90aca44b20
+"   quick-open files    - c2b048731a
+"   functions / misc    - c938316bde
 
-" ------------------------------------------------
-" basic options @ 790119dc20c9c88fafb8c1387a215939
-" ------------------------------------------------
+"790119dc20 || basic options {{{
 
 if 0
   information on 'nocompatible':
@@ -98,20 +98,9 @@ let mapleader = " "
 " Resize splits equally after window resize
 au VimResized * :wincmd =
 
-" Make sure Vim returns to the same line when you reopen a file.
-" From Steve Losh who says "Thanks, Amit"
-augroup line_return
-    au!
-    au BufReadPost *
-        \ if line("'\"") > 0 && line("'\"") <= line("$") |
-        \     execute 'normal! g`"zvzz' |
-        \ endif
-augroup END
+" }}}
 
-
-" -----------------------------------------------------
-" vim-plug / plugins @ ee114926568bfaed70b982a47c8be743
-" -----------------------------------------------------
+"ee11492656 || plugins {{{
 
 " Required by vim-plug
 call plug#begin('~/.vim/plugged')
@@ -162,8 +151,9 @@ call plug#end()
 let javascript_enable_domhtmlcss = 1
 let b:javascript_fold = 1
 
-" No delimitMate for clojure
-au VimEnter *.clj DelimitMateOff
+" No delimitMate for clojure or HTML
+au BufRead *.clj DelimitMateOff
+au BufRead *.html DelimitMateOff
 
 " Better mode for the molokai color scheme
 let g:rehash256 = 1
@@ -182,13 +172,13 @@ let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
 
 if melonEmoji && !has('gui_running')
   let g:lightline = {
-        \ 'colorscheme': 'wombat',
+        \ 'colorscheme': 'solarized',
         \ 'component': {
         \   'readonly': '%{&readonly?"":"🍉  "}'
         \ }
   \ }
 else
-  let g:lightline = { 'colorscheme': 'wombat' }
+  let g:lightline = { 'colorscheme': 'solarized' }
 endif
 
 " Start interactive easyalign in visual mode
@@ -197,10 +187,9 @@ vmap <enter> <plug>(EasyAlign)
 " Start interactive easyalign for a motion/object
 nmap ga <plug>(EasyAlign)
 
+" }}}
 
-" -------------------------------------------------------------------------
-" moving around, searching, and patterns @ 0a272fef246e9a1ccbcd41430d1c8fa5
-" -------------------------------------------------------------------------
+"0a272fef24 || moving around, searching, and patterns {{{
 
 " Better home/end keys - synonymous to normal movement
 nnoremap H ^
@@ -209,6 +198,9 @@ vnoremap L $
 
 " Move up and down a bit faster
 func! Scroll(dir, distance)
+  let curline = &cursorline
+  set nocursorline
+
   for i in range(a:distance)
     let start = reltime()
     if a:dir ==# 'd'
@@ -224,6 +216,8 @@ func! Scroll(dir, distance)
       exec 'sleep ' . wait . 'm'
     endif
   endfor
+
+  let &cursorline = curline
 endfunc
 
 command! -nargs=* Scroll call Scroll(<f-args>)
@@ -289,9 +283,9 @@ vnoremap <left>  <gv
 " e.g. 151\ will take me to line 151.
 nnoremap \ G
 
-" --------------------------------------------------------------------
-" syntax, highlighting and spelling @ e1150751eabad1616657096d1fc161e8
-" --------------------------------------------------------------------
+" }}}
+
+"e1150751ea || syntax, highlighting and spelling {{{
 
 " Turn syntax colouring on
 syntax enable
@@ -321,6 +315,11 @@ if g:colors_name == 'default'
   hi Statement cterm=bold
 endif
 
+" More subdued ~ characters on blank lines
+if &background == 'light'
+  hi NonText ctermfg=7 cterm=NONE
+endif
+
 " Enable filetype plugins
 filetype plugin on
 filetype indent on
@@ -335,10 +334,9 @@ func! HighlightCurrentWord()
 endfunc
 nnoremap <leader>' :call HighlightCurrentWord()<cr>
 
+" }}}
 
-" ------------------------------------------------
-" abbreviations @ 6ba63c409ec6ad4418d5a0fe73986bc5
-" ------------------------------------------------
+"6ba63c409e || abbreviations {{{
 
 " credit: Steve Losh
 function! EatChar(pat)
@@ -356,12 +354,11 @@ call MakeSpacelessIabbrev("ghj/", "https://github.com/joshhartigan/")
 call MakeSpacelessIabbrev("cl", "console.log(")
 call MakeSpacelessIabbrev("req", "require('")
 
-iabbrev psvm public static void main(String args[])
+iabbrev psvm public static void main(String args[]) {<cr>
 
+" }}}
 
-" ----------------------------------------------
-" keybindings @ 1ec442eb14483faf21f007d4672977f5
-" ----------------------------------------------
+"1ec442eb14 || keybindings {{{
 
 " Some keybindings are in other folded sections of this file,
 " because they suit a more specific category (e.g. folding)
@@ -469,17 +466,16 @@ if has('nvim')
   tnoremap <esc> <c-\><c-n>gg
 endif
 
+" }}}
 
-" --------------------------------------------
-" interface @ 78ceb1219085f26b5b14667ad54e68fb
-" --------------------------------------------
+"78ceb12190 || interface {{{
 
-" if &background == 'light'
-"   highlight VertSplit ctermfg=15 ctermbg=15
-" endif
-" if &background == 'dark'
-"   highlight VertSplit ctermfg=0 ctermbg=0
-" endif
+if &background == 'light'
+  highlight VertSplit ctermfg=15 ctermbg=15
+endif
+if &background == 'dark'
+  highlight VertSplit ctermfg=0 ctermbg=0
+endif
 
 " Cursorline only in current window, only in normal mode (Steve Losh)
 if useCursorLine && cursorLineOnlyInNormal
@@ -498,7 +494,7 @@ end
 "       to stay in the Terminal, where everything else is.
 if has("gui_running")
 
-  set guifont=Monaco:h12
+  set guifont=Monaco:h14
 
   " Use italics for certain words
   highlight Comment gui=italic
@@ -510,19 +506,18 @@ if has("gui_running")
   highlight htmlBold gui=bold
 
   " Minimalise gvim/macvim interface
-  set guioptions+=c " Use console dialogs instead of popups for choices
-  set guioptions-=m " Hide menu bar
-  set guioptions-=r " Never show vertical scrollbar
-  set guioptions-=b " Never show horizontal scrollbar
-  set guioptions-=T " Hide ugliest toolbar ever
-  set guioptions-=R " Don't show right scrollbar with vsplits
-  set guioptions-=L " Don't show left scrollbar with vsplits
-  set guioptions-=e " Use non-gui tabs
+  " set guioptions+=c " Use console dialogs instead of popups for choices
+  " set guioptions-=m " Hide menu bar
+  " set guioptions-=r " Never show vertical scrollbar
+  " set guioptions-=b " Never show horizontal scrollbar
+  " set guioptions-=T " Hide ugliest toolbar ever
+  " set guioptions-=R " Don't show right scrollbar with vsplits
+  " set guioptions-=L " Don't show left scrollbar with vsplits
+  " set guioptions-=e " Use non-gui tabs
 
   set linespace=2 " Put 2 pixels in between each line of text
 
 endif
-
 
 " Use block cursor for normal mode and thin cursor for insert mode
 " (this will only work in iTerm)
@@ -533,15 +528,17 @@ if $TERM_PROGRAM =~ "iTerm"
   au VimLeave * let &t_EI = "\<Esc>]50;CursorShape=1\x7"
 endif
 
-" Underline search matches rather than highlighting them
-" (undercurl is rarely available, but if it isn't, it just
-" subsitutes for underline :D)
+" Underline search matches rather than highlighting them.
+" Undercurl is rarely available, but if it isn't, it just
+" subsitutes for underline :)
 highlight Search ctermbg=black ctermfg=brown cterm=undercurl
 
+" Don't highlight matching braces, underline them
+highlight MatchParen cterm=underline ctermbg=bg guibg=bg
 
-" ---------------------------------------------------------------------
-" text and file formatting and folds @ c1b2b7a346e9bfea3307cbd4a6e8bf5d
-" ---------------------------------------------------------------------
+" }}}
+
+"c1b2b7a346 || text and file formatting and folds {{{
 
 " Use foldmarker folding method (three braces to open and close)
 set foldmethod=syntax
@@ -576,10 +573,9 @@ autocmd FileAppendPre   * :call TrimWhiteSpace()
 autocmd FilterWritePre  * :call TrimWhiteSpace()
 autocmd BufWritePre     * :call TrimWhiteSpace()
 
+" }}}
 
-" ------------------------------------------
-" backups @ d65afaadb40c8ecfab29b38d74ed9190
-" ------------------------------------------
+"d65afaadb4 || backups {{{
 
 set undodir=~/.vim/undo      " Undo-change files
 
@@ -588,10 +584,9 @@ set writebackup              " Make backup before overwriting, until save
 
 set noswapfile               " I hate swap files; they must burn
 
+" }}}
 
-" ----------------------------------------------------
-" filetype specific @ 90aca44b20c4fec7cc326e3e6d5c8265
-" ----------------------------------------------------
+"90aca44b20 || filetype specific {{{
 
 " Usually .txt or .md is for documentation / info, in which
 " case I will want spellchecking on.
@@ -633,10 +628,9 @@ au BufEnter *.css inoremap ; <esc>la
 au BufLeave *.css iunmap :
 au BufLeave *.css iunmap ;
 
+" }}}
 
-" ---------------------------------------------------
-" quick-open files @ c2b048731a310a5e20498aa324634ca0
-" ---------------------------------------------------
+"c2b048731a || quick-open files {{{
 
 " Open ~/.vimrc in same buffer
 nnoremap <leader>ev :e $VIMRC<cr>
@@ -649,12 +643,13 @@ nnoremap <leader>ep :cd $PROJECTS/
 " Open .vimrc in split
 nnoremap <leader>v :sp $VIMRC<cr>
 
-" -----------------------------------------------------
-" functions and misc @ c938316bde540963a92a96a0bcd481c9
-" (any random stuff that doesn't fit anywhere else)
-" -----------------------------------------------------
+" }}}
+
+"c938316bde || functions and misc {{{
 
 func! s:millisecs_since(time)
   let cost = split(reltimestr(reltime(a:time)), '\.')
   return str2nr(cost[0]) * 1000 + str2nr(cost[1]) / 1000.0
 endfunc
+
+" }}}
